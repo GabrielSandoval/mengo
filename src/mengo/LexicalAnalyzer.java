@@ -18,8 +18,7 @@ public class LexicalAnalyzer {
 
     private static PushbackInputStream buffRead;
     private char c;
-    private static char SYNTAXERROR = (char) -1;
-    private static String EOF = "EOF";
+    private static int EOF = 255;
     private static int lookahead;
 
     public LexicalAnalyzer(String inFile) {
@@ -54,7 +53,7 @@ public class LexicalAnalyzer {
         int state = 1; // Initial state
         String lexemeBuffer = "";
         while (true) {
-//            System.out.println(state);
+            System.out.println(state + ": " + c);
             switch (state) {
                 case 1:                                                      // SPECIAL SYMBOLS
                     switch (c) {
@@ -177,7 +176,7 @@ public class LexicalAnalyzer {
                             state = 8;
                             continue;
                         default:
-                            return new Token(SYNTAXERROR + "", "Syntax Error");
+                            return new Token("STXERR" + "", "Syntax Error");
                     }
                 case 8:
                     switch (c) {
@@ -187,7 +186,7 @@ public class LexicalAnalyzer {
                             state = 9;
                             continue;
                         default:
-                            return new Token(SYNTAXERROR + "", "Syntax Error");
+                            return new Token("STXERR" + "", "Syntax Error");
                     }
                 case 9:
                     switch (c) {
@@ -257,16 +256,6 @@ public class LexicalAnalyzer {
                     }
 
                 case 15:
-//                    if (c == '\r') {
-//                        c = read();
-//                        if (c == '\n') {
-//                            unread('\n');
-//                            unread('\r');
-//                            unread('.');
-//                            c = read();
-//                            return new Token("NUMCONST", lexemeBuffer);
-//                        }
-//                    }
                     if (isNumber(c)) {
                         lexemeBuffer += ".";
                         while (true) {
@@ -323,6 +312,9 @@ public class LexicalAnalyzer {
                         c = read();
                         continue;
                     } else {
+                        unread(c);
+                        c = read();
+//                        c = read();
                         switch (lexemeBuffer) {
                             case "HELLO":
                                 return new Token("HELLO", lexemeBuffer);
@@ -385,14 +377,16 @@ public class LexicalAnalyzer {
                         }
                     }
                 case 20:
-                    return new Token(EOF + "", "End of File");
+                    System.out.println((int)c);
+                    if (c == EOF) {
+                        return new Token("EOF", "End of File");
+                    } else {
+                        c = read();
+                        return new Token("STXERROR", "Syntax Error");
+                    }
                 default:
                     c = read();
-                    if (c == -2) {
-                        state = 20;
-                    } else {
-                        return new Token(SYNTAXERROR + "", "Syntax Error");
-                    }
+                    return new Token("STXERROR", "Syntax Error");
             }
         }
     }

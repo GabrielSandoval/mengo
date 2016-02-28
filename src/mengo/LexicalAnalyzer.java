@@ -18,7 +18,7 @@ public class LexicalAnalyzer {
 
     private static PushbackInputStream buffRead;
     private char c;
-    private static int EOF = 255;
+    private static int EOF = 65535;
     private static int lookahead;
 
     public LexicalAnalyzer(String inFile) {
@@ -377,7 +377,7 @@ public class LexicalAnalyzer {
                         }
                     }
                 case 20:
-                    System.out.println((int)c);
+                    System.out.println((int)c + "=>" + c);
                     if (c == EOF) {
                         return new Token("EOF", "End of File");
                     } else {

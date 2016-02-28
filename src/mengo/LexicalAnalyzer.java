@@ -195,7 +195,7 @@ public class LexicalAnalyzer {
                             lexemeBuffer += c + "";
                             c = read();
                             state = 10;
-                            break;
+                            continue;
                         default:
                             lexemeBuffer += c + "";
                             c = read();
@@ -210,6 +210,7 @@ public class LexicalAnalyzer {
                             continue;
                         default:
                             state = 9;
+                            continue;
                     }
                 case 11:
                     switch (c) {

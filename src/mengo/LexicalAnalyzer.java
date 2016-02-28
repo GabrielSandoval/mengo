@@ -5,9 +5,10 @@
  */
 package mengo;
 
-import java.io.BufferedReader;
+import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.PushbackInputStream;
 
 /**
  *
@@ -15,14 +16,16 @@ import java.io.IOException;
  */
 public class LexicalAnalyzer {
 
-    private static BufferedReader buffRead;
+    private static PushbackInputStream buffRead;
     private char c;
     private static char SYNTAXERROR = (char) -1;
     private static String EOF = "EOF";
+    private static int lookahead;
 
     public LexicalAnalyzer(String inFile) {
+        lookahead = 10;
         try {
-            buffRead = new BufferedReader(new FileReader(inFile));
+            buffRead = new PushbackInputStream(new FileInputStream(inFile), lookahead);
         } catch (Exception e) {
             System.out.println(e);
         }
@@ -35,6 +38,14 @@ public class LexicalAnalyzer {
         } catch (IOException e) {
             e.printStackTrace();
             return (char) -2;
+        }
+    }
+
+    private void unread(char c) {
+        try {
+            buffRead.unread(c);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
@@ -56,20 +67,25 @@ public class LexicalAnalyzer {
                             c = read();
                             continue;
                         case '+':
+                            lexemeBuffer += c + "";
                             c = read();
-                            return new Token("ADD", "" + c);
+                            return new Token("ADD", lexemeBuffer);
                         case '-':
+                            lexemeBuffer += c + "";
                             c = read();
-                            return new Token("SUB", "" + c);
+                            return new Token("SUB", lexemeBuffer);
                         case '*':
+                            lexemeBuffer += c + "";
                             c = read();
-                            return new Token("MUL", "" + c);
+                            return new Token("MUL", lexemeBuffer);
                         case '/':
+                            lexemeBuffer += c + "";
                             c = read();
-                            return new Token("DIV", "" + c);
+                            return new Token("DIV", lexemeBuffer);
                         case '%':
+                            lexemeBuffer += c + "";
                             c = read();
-                            return new Token("MOD", "" + c);
+                            return new Token("MOD", lexemeBuffer);
                         case '<':
                             lexemeBuffer += c + "";
                             c = read();
@@ -79,47 +95,53 @@ public class LexicalAnalyzer {
                             lexemeBuffer += c + "";
                             c = read();
                             state = 3;
+                            continue;
                         case ',':
+                            lexemeBuffer += c + "";
                             c = read();
-                            return new Token("COMMA", "" + c);
+                            return new Token("COMMA", lexemeBuffer);
                         case '(':
+                            lexemeBuffer += c + "";
                             c = read();
-                            return new Token("LPAREN", "" + c);
+                            return new Token("LPAREN", lexemeBuffer);
                         case ')':
+                            lexemeBuffer += c + "";
                             c = read();
-                            return new Token("RPAREN", "" + c);
+                            return new Token("RPAREN", lexemeBuffer);
                         case '&':
+                            lexemeBuffer += c + "";
                             c = read();
-                            return new Token("AND", "" + c);
+                            return new Token("AND", lexemeBuffer);
                         case '|':
+                            lexemeBuffer += c + "";
                             c = read();
-                            return new Token("OR", "" + c);
+                            return new Token("OR", lexemeBuffer);
                         case '!':
+                            lexemeBuffer += c + "";
                             c = read();
-                            return new Token("NOT", "" + c);
+                            return new Token("NOT", lexemeBuffer);
                         default:
                             state = 4;
                             continue;
                     }
-
                 case 2:                                                         // < or <=
 
                     switch (c) {
                         case '=':
+                            lexemeBuffer += c + "";
                             c = read();
                             return new Token("LTE", lexemeBuffer);
                         default:
-                            c = read();
                             return new Token("LT", "<");
                     }
 
                 case 3:                                                         // > or >=
                     switch (c) {
                         case '=':
+                            lexemeBuffer += c + "";
                             c = read();
                             return new Token("GTE", lexemeBuffer);
                         default:
-                            c = read();
                             return new Token("GT", ">");
                     }
 
@@ -142,18 +164,10 @@ public class LexicalAnalyzer {
                             state = 7;
                             continue;
                         default:
-                            c = read();
-                            state = 6;
-                            continue;
-
-                    }
-                case 6:
-                    switch (c) {
-                        case '\n':
+                            unread(c);
                             c = read();
                             return new Token("PERIOD", ".");
-                        default:
-                            return new Token(SYNTAXERROR + "", "Syntax Error");
+
                     }
                 case 7:
                     switch (c) {
@@ -228,7 +242,6 @@ public class LexicalAnalyzer {
                     }
 
                 case 14:                                                        // NUMERIC CONSTANT
-
                     if (c == '.') {
                         c = read();
                         state = 15;
@@ -236,25 +249,38 @@ public class LexicalAnalyzer {
                     } else if (isNumber(c)) {
                         lexemeBuffer += c + "";
                         c = read();
+                        continue;
                     } else {
                         c = read();
                         return new Token("NUMCONST", lexemeBuffer);
                     }
 
                 case 15:
-                    if (c == '\n') {
-                        state = 6;
-                        continue;
-                    }
-                    while (true) {
-                        if (isNumber(c)) {
-                            lexemeBuffer += c + "";
-                            c = read();
-                        } else {
-                            lexemeBuffer += c + "";
-                            c = read();
-                            return new Token("NUMCONST", lexemeBuffer);
+//                    if (c == '\r') {
+//                        c = read();
+//                        if (c == '\n') {
+//                            unread('\n');
+//                            unread('\r');
+//                            unread('.');
+//                            c = read();
+//                            return new Token("NUMCONST", lexemeBuffer);
+//                        }
+//                    }
+                    if (isNumber(c)) {
+                        lexemeBuffer += ".";
+                        while (true) {
+                            if (isNumber(c)) {
+                                lexemeBuffer += c + "";
+                                c = read();
+                            } else {
+                                return new Token("NUMCONST", lexemeBuffer);
+                            }
                         }
+                    } else {
+                        unread(c);
+                        unread('.');
+                        c = read();
+                        return new Token("NUMCONST", lexemeBuffer);
                     }
 
                 case 16:                                                        // LITERAL STRING
@@ -341,15 +367,31 @@ public class LexicalAnalyzer {
                                 return new Token("NOW", lexemeBuffer);
                             case "IS":
                                 return new Token("ASSIGNMENT", lexemeBuffer);
+                            case "TRUE":
+                                return new Token("TRUE", lexemeBuffer);
+                            case "FALSE":
+                                return new Token("FALSE", lexemeBuffer);
+                            case "FROM":
+                                return new Token("FROM", lexemeBuffer);
+                            case "ENDFROM":
+                                return new Token("ENDFROM", lexemeBuffer);
+                            case "WHEN":
+                                return new Token("WHEN", lexemeBuffer);
+                            case "ENDWHEN":
+                                return new Token("ENDWHEN", lexemeBuffer);
                             default:
                                 return new Token("ID", lexemeBuffer);
                         }
                     }
                 case 20:
-                    c = read();
                     return new Token(EOF + "", "End of File");
                 default:
-                    return new Token(SYNTAXERROR + "", "Syntax Error");
+                    c = read();
+                    if (c == -2) {
+                        state = 20;
+                    } else {
+                        return new Token(SYNTAXERROR + "", "Syntax Error");
+                    }
             }
         }
     }

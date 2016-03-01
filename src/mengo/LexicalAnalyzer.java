@@ -6,7 +6,6 @@
 package mengo;
 
 import java.io.FileInputStream;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.PushbackInputStream;
 
@@ -53,16 +52,35 @@ public class LexicalAnalyzer {
         int state = 1; // Initial state
         String lexemeBuffer = "";
         while (true) {
-            System.out.println(state + ": " + c);
+//            System.out.println(state + ": " + c);
             switch (state) {
                 case 1:                                                      // SPECIAL SYMBOLS
                     switch (c) {
                         case ' ':
+                            c = read();
+                            System.out.print(" ");
+                            continue;
                         case '\r':
+                            c = read();
+                            System.out.print("\r");
+                            continue;
                         case '\b':
+                            c = read();
+                            System.out.print("\b");
+                            continue;
                         case '\f':
+                            c = read();
+                            System.out.print("\f");
+                            continue;
                         case '\t':
+                            c = read();
+                            System.out.print("\t");
+                            continue;
                         case '\n':
+                            c = read();
+                            System.out.print("\n");
+                            continue;
+                        case 255:                                           //non braking space
                             c = read();
                             continue;
                         case '+':
@@ -176,7 +194,7 @@ public class LexicalAnalyzer {
                             state = 8;
                             continue;
                         default:
-                            return new Token("STXERR" + "", "Syntax Error");
+                            return new Token("STXERR" + "", "Syntax Error! Expecting another \".\" in creating a comment");
                     }
                 case 8:
                     switch (c) {
@@ -186,7 +204,7 @@ public class LexicalAnalyzer {
                             state = 9;
                             continue;
                         default:
-                            return new Token("STXERR" + "", "Syntax Error");
+                            return new Token("STXERR" + "", "Syntax Error! Expecting \"<\" in creating a comment");
                     }
                 case 9:
                     switch (c) {
@@ -251,7 +269,7 @@ public class LexicalAnalyzer {
                         c = read();
                         continue;
                     } else {
-                        c = read();
+                        //c = read();
                         return new Token("NUMCONST", lexemeBuffer);
                     }
 
@@ -377,16 +395,18 @@ public class LexicalAnalyzer {
                         }
                     }
                 case 20:
-                    System.out.println((int)c + "=>" + c);
+//                    System.out.println((int)c + "=>" + c);
                     if (c == EOF) {
                         return new Token("EOF", "End of File");
                     } else {
+                        String temp = c + "";
                         c = read();
-                        return new Token("STXERROR", "Syntax Error");
+                        return new Token("STXERROR", "Syntax Error! The character " + temp + " is unknown.");
                     }
                 default:
+                    String temp = c + "";
                     c = read();
-                    return new Token("STXERROR", "Syntax Error");
+                    return new Token("STXERROR", "Syntax Error! The character " + temp + " is unknown.");
             }
         }
     }

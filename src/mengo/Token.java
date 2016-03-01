@@ -35,6 +35,6 @@ public class Token {
 
     // Returns a string representation of the token
     public String toString() {
-        return kind + "\t\t" + lexeme;
+        return kind + ": " + lexeme;
     }
 }

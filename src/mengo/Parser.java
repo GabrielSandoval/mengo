@@ -16,7 +16,7 @@ import java.io.IOException;
 public class Parser {
 
     public static void main(String[] args) {
-        String root = "C:\\Users\\lenovo G40-70\\Desktop\\MENGO_Code\\";
+        String root = "C:\\Users\\Jullian\\Desktop\\";
         String inFile = root + "sample2.mpl";
         String outFile = root + "sample2out.mpl";
 
@@ -31,13 +31,13 @@ public class Parser {
             while ((tok = lexAnalyzer.nextToken()) != null) {
 
                 if (tok.getKind().equals("STXERR")) {
-                    System.out.println(tok.toString());
+                    System.out.println("["+tok.toString()+"]");
                 } else if (tok.getKind().equals("EOF")) {
-                    System.out.println(tok.toString());
+                    System.out.println("["+tok.toString()+"]");
                     break;
                 } else {
-                    writer.write(tok.toString());
-                    System.out.println(tok.toString());
+                    writer.write(tok.toString() + "\n");
+                    System.out.print("["+tok.toString()+"]");
                 }
             }
 

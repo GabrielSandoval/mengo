@@ -19,6 +19,8 @@ public class LexicalAnalyzer {
     private char c;
     private static int EOF = 65535;
     private static int lookahead;
+    private int currentCol = 0;
+    private int curretLineNum = 1;
 
     public LexicalAnalyzer(String inFile) {
         lookahead = 10;
@@ -32,6 +34,7 @@ public class LexicalAnalyzer {
 
     private char read() {
         try {
+            currentCol++;
             return (char) (buffRead.read());
         } catch (IOException e) {
             e.printStackTrace();
@@ -41,6 +44,7 @@ public class LexicalAnalyzer {
 
     private void unread(char c) {
         try {
+            currentCol--;
             buffRead.unread(c);
         } catch (IOException e) {
             e.printStackTrace();
@@ -77,6 +81,8 @@ public class LexicalAnalyzer {
                             System.out.print("\t");
                             continue;
                         case '\n':
+                            currentCol = 0;
+                            curretLineNum++;
                             c = read();
                             System.out.print("\n");
                             continue;
@@ -194,7 +200,7 @@ public class LexicalAnalyzer {
                             state = 8;
                             continue;
                         default:
-                            return new Token("STXERR" + "", "Syntax Error! Expecting another \".\" in creating a comment");
+                            return new Token("STXERROR" + "", "Syntax Error! Expecting another \".\" in creating a comment. At line " + this.curretLineNum + " at column " + this.currentCol);
                     }
                 case 8:
                     switch (c) {
@@ -204,7 +210,7 @@ public class LexicalAnalyzer {
                             state = 9;
                             continue;
                         default:
-                            return new Token("STXERR" + "", "Syntax Error! Expecting \"<\" in creating a comment");
+                            return new Token("STXERROR" + "", "Syntax Error! Expecting \"<\" in creating a comment. At line " + this.curretLineNum + " at column " + this.currentCol);
                     }
                 case 9:
                     switch (c) {
@@ -214,6 +220,9 @@ public class LexicalAnalyzer {
                             state = 10;
                             continue;
                         default:
+                            if(c == '\n'){
+                                this.curretLineNum++;
+                            }
                             lexemeBuffer += c + "";
                             c = read();
                             continue;
@@ -377,11 +386,11 @@ public class LexicalAnalyzer {
                             case "NOW":
                                 return new Token("NOW", lexemeBuffer);
                             case "IS":
-                                return new Token("ASSIGNMENT", lexemeBuffer);
+                                return new Token("IS", lexemeBuffer);
                             case "TRUE":
-                                return new Token("TRUE", lexemeBuffer);
+                                return new Token("BOOLEANCONST", lexemeBuffer);
                             case "FALSE":
-                                return new Token("FALSE", lexemeBuffer);
+                                return new Token("BOOLEANCONST", lexemeBuffer);
                             case "FROM":
                                 return new Token("FROM", lexemeBuffer);
                             case "ENDFROM":
@@ -403,12 +412,12 @@ public class LexicalAnalyzer {
                     } else {
                         String temp = c + "";
                         c = read();
-                        return new Token("STXERROR", "Syntax Error! The character " + temp + " is unknown.");
+                        return new Token("STXERROR", "Syntax Error! The character " + temp + " is unknown. At line " + this.curretLineNum + " at column " + this.currentCol);
                     }
                 default:
                     String temp = c + "";
                     c = read();
-                    return new Token("STXERROR", "Syntax Error! The character " + temp + " is unknown.");
+                    return new Token("STXERROR", "Syntax Error! The character " + temp + " is unknown. At line " + this.curretLineNum + " at column " + this.currentCol);
             }
         }
     }

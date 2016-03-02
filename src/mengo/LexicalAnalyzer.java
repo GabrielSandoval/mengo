@@ -133,7 +133,7 @@ public class LexicalAnalyzer {
                             lexemeBuffer += c + "";
                             c = read();
                             return new Token("OR", lexemeBuffer);
-                        case '!':
+                        case '~':
                             lexemeBuffer += c + "";
                             c = read();
                             return new Token("NOT", lexemeBuffer);
@@ -390,6 +390,8 @@ public class LexicalAnalyzer {
                                 return new Token("WHEN", lexemeBuffer);
                             case "ENDWHEN":
                                 return new Token("ENDWHEN", lexemeBuffer);
+                            case "OTHERWISE":
+                                return new Token("OTHERWISE", lexemeBuffer);    
                             default:
                                 return new Token("ID", lexemeBuffer);
                         }

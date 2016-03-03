@@ -341,69 +341,11 @@ public class LexicalAnalyzer {
                     } else {
                         unread(c);
                         c = read();
-//                        c = read();
-                        switch (lexemeBuffer) {
-                            case "HELLO":
-                                return new Token("HELLO", lexemeBuffer);
-                            case "GOODBYE":
-                                return new Token("GOODBYE", lexemeBuffer);
-                            case "STARTHERE":
-                                return new Token("STARTHERE", lexemeBuffer);
-                            case "ENDHERE":
-                                return new Token("ENDHERE", lexemeBuffer);
-                            case "TASK":
-                                return new Token("TASK", lexemeBuffer);
-                            case "ENDTASK":
-                                return new Token("ENDTASK", lexemeBuffer);
-                            case "INVOLVES":
-                                return new Token("INVOLVES", lexemeBuffer);
-                            case "PERMANENT":
-                                return new Token("PERMANENT", lexemeBuffer);
-                            case "NUMBER":
-                                return new Token("NUMBER", lexemeBuffer);
-                            case "BOOLEAN":
-                                return new Token("BOOLEAN", lexemeBuffer);
-                            case "STRING":
-                                return new Token("STRING", lexemeBuffer);
-                            case "ACCEPT":
-                                return new Token("ACCEPT", lexemeBuffer);
-                            case "RETURN":
-                                return new Token("RETURN", lexemeBuffer);
-                            case "WHILE":
-                                return new Token("WHILE", lexemeBuffer);
-                            case "ENDWHILE":
-                                return new Token("ENDWHILE", lexemeBuffer);
-                            case "UNTIL":
-                                return new Token("UNTIL", lexemeBuffer);
-                            case "INCREMENT":
-                                return new Token("INCREMENT", lexemeBuffer);
-                            case "BY":
-                                return new Token("BY", lexemeBuffer);
-                            case "SHOW":
-                                return new Token("SHOW", lexemeBuffer);
-                            case "THE":
-                                return new Token("THE", lexemeBuffer);
-                            case "NOW":
-                                return new Token("NOW", lexemeBuffer);
-                            case "IS":
-                                return new Token("IS", lexemeBuffer);
-                            case "TRUE":
-                                return new Token("BOOLEANCONST", lexemeBuffer);
-                            case "FALSE":
-                                return new Token("BOOLEANCONST", lexemeBuffer);
-                            case "FROM":
-                                return new Token("FROM", lexemeBuffer);
-                            case "ENDFROM":
-                                return new Token("ENDFROM", lexemeBuffer);
-                            case "WHEN":
-                                return new Token("WHEN", lexemeBuffer);
-                            case "ENDWHEN":
-                                return new Token("ENDWHEN", lexemeBuffer);
-                            case "OTHERWISE":
-                                return new Token("OTHERWISE", lexemeBuffer);    
-                            default:
-                                return new Token("ID", lexemeBuffer);
+                        Token temp = Parser.ReservedWordsTable.get(lexemeBuffer);
+                        if(temp ==  null){
+                            return new Token("ID", lexemeBuffer);
                         }
+                        return temp;
                     }
                 case 20:
 //                    System.out.println((int)c + "=>" + c);

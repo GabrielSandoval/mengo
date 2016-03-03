@@ -9,6 +9,8 @@ import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
 /**
  *
@@ -20,12 +22,12 @@ public class Parser {
     public static HashMap<String, Token> IdentifierTable = new HashMap();
 
     public static void main(String[] args) {
-        String root = "C:\\Users\\Jullian\\Desktop\\";
+        String root = "C:\\Users\\Jullian\\Desktop\\mengo\\";
         String inFile = root + "SAMPLE PROGRAM.mpl";
         String outFile = root + "sample2out.mpl";
 
         LexicalAnalyzer lexAnalyzer = new LexicalAnalyzer(inFile);
-        //FillReservedWordTable();
+        FillReservedWordTable();
         try {
 
             BufferedWriter writer = new BufferedWriter(new FileWriter(outFile));
@@ -33,7 +35,6 @@ public class Parser {
             Token tok = new Token();
 
             while ((tok = lexAnalyzer.nextToken()) != null) {
-
                 if (tok.getKind().equals("STXERROR")) {
                     System.out.println("[" + tok.toString() + "]");
                 } else if (tok.getKind().equals("EOF")) {
@@ -45,7 +46,10 @@ public class Parser {
                     }
                     writer.write(tok.toString() + "\n");
                     System.out.print("[" + tok.toString() + "]");
-                } 
+                }
+                else if(tok.getKind().equals("COMMENT")){
+                    
+                }
                 else {
                     writer.write(tok.toString() + "\n");
                     System.out.print("[" + tok.getKind() + "]");
@@ -56,27 +60,34 @@ public class Parser {
             System.out.println();
             System.out.println("Done tokenizing file: " + inFile);
             System.out.println("Output written in file: " + outFile);
+//            System.out.println("\nIdentifiers:");
+//            Iterator i = IdentifierTable.entrySet().iterator();
+//            while(i.hasNext()){
+//                Map.Entry pair = (Map.Entry)i.next();
+//                System.out.println(pair.getKey() + " : " + pair.getValue());
+//                i.remove();   
+//            }
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
     public static void FillReservedWordTable(){
-        ReservedWordsTable.put("ADD",new Token("ADD", "+"));
-        ReservedWordsTable.put("SUB",new Token("SUB", "-"));
-        ReservedWordsTable.put("MUL",new Token("MUL", "*"));
-        ReservedWordsTable.put("DIV",new Token("DIV", "/"));
-        ReservedWordsTable.put("MOD",new Token("MOD", "%"));
-        ReservedWordsTable.put("COMMA",new Token("COMMA", ","));
-        ReservedWordsTable.put("LPAREN",new Token("LPAREN", "("));
-        ReservedWordsTable.put("RPAREN",new Token("RPAREN", ")"));
-        ReservedWordsTable.put("AND",new Token("AND", "&"));
-        ReservedWordsTable.put("OR",new Token("OR", "|"));
-        ReservedWordsTable.put("NOT",new Token("NOT", "~"));
-        ReservedWordsTable.put("LTE",new Token("LTE", "<="));
-        ReservedWordsTable.put("LT",new Token("LT", "<"));
-        ReservedWordsTable.put("GTE",new Token("GTE", ">="));
-        ReservedWordsTable.put("GT",new Token("GT", ">"));
-        ReservedWordsTable.put("PERIOD",new Token("PERIOD", "."));
+//        ReservedWordsTable.put("ADD",new Token("ADD", "+"));
+//        ReservedWordsTable.put("SUB",new Token("SUB", "-"));
+//        ReservedWordsTable.put("MUL",new Token("MUL", "*"));
+//        ReservedWordsTable.put("DIV",new Token("DIV", "/"));
+//        ReservedWordsTable.put("MOD",new Token("MOD", "%"));
+//        ReservedWordsTable.put("COMMA",new Token("COMMA", ","));
+//        ReservedWordsTable.put("LPAREN",new Token("LPAREN", "("));
+//        ReservedWordsTable.put("RPAREN",new Token("RPAREN", ")"));
+//        ReservedWordsTable.put("AND",new Token("AND", "&"));
+//        ReservedWordsTable.put("OR",new Token("OR", "|"));
+//        ReservedWordsTable.put("NOT",new Token("NOT", "~"));
+//        ReservedWordsTable.put("LTE",new Token("LTE", "<="));
+//        ReservedWordsTable.put("LT",new Token("LT", "<"));
+//        ReservedWordsTable.put("GTE",new Token("GTE", ">="));
+//        ReservedWordsTable.put("GT",new Token("GT", ">"));
+//        ReservedWordsTable.put("PERIOD",new Token("PERIOD", "."));
         ReservedWordsTable.put("HELLO",new Token("HELLO", "HELLO"));
         ReservedWordsTable.put("GOODBYE",new Token("GOODBYE", "GOODBYE"));
         ReservedWordsTable.put("STARTHERE",new Token("STARTHERE", "STARTHERE"));
@@ -102,5 +113,6 @@ public class Parser {
         ReservedWordsTable.put("WHEN",new Token("WHEN", "WHEN"));
         ReservedWordsTable.put("ENDWHEN",new Token("ENDWHEN", "ENDWHEN"));
         ReservedWordsTable.put("OTHERWISE",new Token("OTHERWISE", "OTHERWISE"));
+        ReservedWordsTable.put("BE",new Token("BE", "BE"));
     }
 }

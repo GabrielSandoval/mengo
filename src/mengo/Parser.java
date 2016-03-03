@@ -22,7 +22,7 @@ public class Parser {
     public static HashMap<String, Token> IdentifierTable = new HashMap();
 
     public static void main(String[] args) {
-        String root = "C:\\Users\\Jullian\\Desktop\\mengo\\";
+        String root = "C:\\Users\\Jullian\\Desktop\\";
         String inFile = root + "SAMPLE PROGRAM.mpl";
         String outFile = root + "sample2out.mpl";
 

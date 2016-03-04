@@ -19,8 +19,12 @@ public class LexicalAnalyzer {
     private char c;
     private static int EOF = 65535;
     private static int lookahead;
+    private int currentCol = 0;
+    private int curretLineNum = 1;
+    public Token LastToken;
 
     public LexicalAnalyzer(String inFile) {
+        LastToken = null;
         lookahead = 10;
         try {
             buffRead = new PushbackInputStream(new FileInputStream(inFile), lookahead);
@@ -32,6 +36,7 @@ public class LexicalAnalyzer {
 
     private char read() {
         try {
+            currentCol++;
             return (char) (buffRead.read());
         } catch (IOException e) {
             e.printStackTrace();
@@ -41,6 +46,7 @@ public class LexicalAnalyzer {
 
     private void unread(char c) {
         try {
+            currentCol--;
             buffRead.unread(c);
         } catch (IOException e) {
             e.printStackTrace();
@@ -77,6 +83,8 @@ public class LexicalAnalyzer {
                             System.out.print("\t");
                             continue;
                         case '\n':
+                            currentCol = 0;
+                            curretLineNum++;
                             c = read();
                             System.out.print("\n");
                             continue;
@@ -86,23 +94,28 @@ public class LexicalAnalyzer {
                         case '+':
                             lexemeBuffer += c + "";
                             c = read();
-                            return new Token("ADD", lexemeBuffer);
+                            LastToken = new Token("ADD", lexemeBuffer);
+                            return LastToken;
                         case '-':
                             lexemeBuffer += c + "";
                             c = read();
-                            return new Token("SUB", lexemeBuffer);
+                            LastToken = new Token("SUB", lexemeBuffer);
+                            return LastToken;
                         case '*':
                             lexemeBuffer += c + "";
                             c = read();
-                            return new Token("MUL", lexemeBuffer);
+                            LastToken = new Token("MUL", lexemeBuffer);
+                            return LastToken;
                         case '/':
                             lexemeBuffer += c + "";
                             c = read();
-                            return new Token("DIV", lexemeBuffer);
+                            LastToken = new Token("DIV", lexemeBuffer);
+                            return LastToken;
                         case '%':
                             lexemeBuffer += c + "";
                             c = read();
-                            return new Token("MOD", lexemeBuffer);
+                            LastToken = new Token("MOD", lexemeBuffer);
+                            return LastToken;
                         case '<':
                             lexemeBuffer += c + "";
                             c = read();
@@ -116,27 +129,33 @@ public class LexicalAnalyzer {
                         case ',':
                             lexemeBuffer += c + "";
                             c = read();
-                            return new Token("COMMA", lexemeBuffer);
+                            LastToken = new Token("COMMA", lexemeBuffer);
+                            return LastToken;
                         case '(':
                             lexemeBuffer += c + "";
                             c = read();
-                            return new Token("LPAREN", lexemeBuffer);
+                            LastToken = new Token("LPAREN", lexemeBuffer);
+                            return LastToken;
                         case ')':
                             lexemeBuffer += c + "";
                             c = read();
-                            return new Token("RPAREN", lexemeBuffer);
+                            LastToken = new Token("RPAREN", lexemeBuffer);
+                            return LastToken;
                         case '&':
                             lexemeBuffer += c + "";
                             c = read();
-                            return new Token("AND", lexemeBuffer);
+                            LastToken = new Token("AND", lexemeBuffer);
+                            return LastToken;
                         case '|':
                             lexemeBuffer += c + "";
                             c = read();
-                            return new Token("OR", lexemeBuffer);
+                            LastToken = new Token("OR", lexemeBuffer);
+                            return LastToken;
                         case '~':
                             lexemeBuffer += c + "";
                             c = read();
-                            return new Token("NOT", lexemeBuffer);
+                            LastToken = new Token("NOT", lexemeBuffer);
+                            return LastToken;
                         default:
                             state = 4;
                             continue;
@@ -147,9 +166,11 @@ public class LexicalAnalyzer {
                         case '=':
                             lexemeBuffer += c + "";
                             c = read();
-                            return new Token("LTE", lexemeBuffer);
+                            LastToken = new Token("LTE", lexemeBuffer);
+                            return LastToken;
                         default:
-                            return new Token("LT", "<");
+                            LastToken = new Token("LT", "<");
+                            return LastToken;
                     }
 
                 case 3:                                                         // > or >=
@@ -157,9 +178,11 @@ public class LexicalAnalyzer {
                         case '=':
                             lexemeBuffer += c + "";
                             c = read();
-                            return new Token("GTE", lexemeBuffer);
+                            LastToken = new Token("GTE", lexemeBuffer);
+                            return LastToken;
                         default:
-                            return new Token("GT", ">");
+                            LastToken = new Token("GT", ">");
+                            return LastToken;
                     }
 
                 case 4:                                                         // START OF COMMENTS or PERIOD DELIMITER
@@ -183,8 +206,8 @@ public class LexicalAnalyzer {
                         default:
                             unread(c);
                             c = read();
-                            return new Token("PERIOD", ".");
-
+                            LastToken = new Token("PERIOD", ".");
+                            return LastToken;
                     }
                 case 7:
                     switch (c) {
@@ -194,7 +217,8 @@ public class LexicalAnalyzer {
                             state = 8;
                             continue;
                         default:
-                            return new Token("STXERR" + "", "Syntax Error! Expecting another \".\" in creating a comment");
+                            LastToken = new Token("STXERROR" + "", "Syntax Error! Expecting another \".\" in creating a comment. At line " + this.curretLineNum + " at column " + this.currentCol);
+                            return LastToken;
                     }
                 case 8:
                     switch (c) {
@@ -204,7 +228,8 @@ public class LexicalAnalyzer {
                             state = 9;
                             continue;
                         default:
-                            return new Token("STXERR" + "", "Syntax Error! Expecting \"<\" in creating a comment");
+                            LastToken = new Token("STXERROR" + "", "Syntax Error! Expecting \"<\" in creating a comment. At line " + this.curretLineNum + " at column " + this.currentCol);
+                            return LastToken;
                     }
                 case 9:
                     switch (c) {
@@ -214,6 +239,9 @@ public class LexicalAnalyzer {
                             state = 10;
                             continue;
                         default:
+                            if (c == '\n') {
+                                this.curretLineNum++;
+                            }
                             lexemeBuffer += c + "";
                             c = read();
                             continue;
@@ -244,7 +272,8 @@ public class LexicalAnalyzer {
                         case '.':
                             lexemeBuffer += c + "";
                             c = read();
-                            return new Token("COMMENT", lexemeBuffer);
+                            LastToken = new Token("COMMENT", lexemeBuffer);
+                            return LastToken;
                         default:
                             state = 9;
                     }
@@ -269,8 +298,8 @@ public class LexicalAnalyzer {
                         c = read();
                         continue;
                     } else {
-                        //c = read();
-                        return new Token("NUMCONST", lexemeBuffer);
+                        LastToken = new Token("NUMCONST", lexemeBuffer);
+                        return LastToken;
                     }
 
                 case 15:
@@ -281,14 +310,16 @@ public class LexicalAnalyzer {
                                 lexemeBuffer += c + "";
                                 c = read();
                             } else {
-                                return new Token("NUMCONST", lexemeBuffer);
+                                LastToken = new Token("NUMCONST", lexemeBuffer);
+                                return LastToken;
                             }
                         }
                     } else {
                         unread(c);
                         unread('.');
                         c = read();
-                        return new Token("NUMCONST", lexemeBuffer);
+                        LastToken = new Token("NUMCONST", lexemeBuffer);
+                        return LastToken;
                     }
 
                 case 16:                                                        // LITERAL STRING
@@ -307,7 +338,8 @@ public class LexicalAnalyzer {
                         case '\"':
                             lexemeBuffer += c + "";
                             c = read();
-                            return new Token("LITSTRING", lexemeBuffer);
+                            LastToken = new Token("LITSTRING", lexemeBuffer);
+                            return LastToken;
                         default:
                             lexemeBuffer += c + "";
                             c = read();
@@ -332,83 +364,29 @@ public class LexicalAnalyzer {
                     } else {
                         unread(c);
                         c = read();
-//                        c = read();
-                        switch (lexemeBuffer) {
-                            case "HELLO":
-                                return new Token("HELLO", lexemeBuffer);
-                            case "GOODBYE":
-                                return new Token("GOODBYE", lexemeBuffer);
-                            case "STARTHERE":
-                                return new Token("STARTHERE", lexemeBuffer);
-                            case "ENDHERE":
-                                return new Token("ENDHERE", lexemeBuffer);
-                            case "TASK":
-                                return new Token("TASK", lexemeBuffer);
-                            case "ENDTASK":
-                                return new Token("ENDTASK", lexemeBuffer);
-                            case "INVOLVES":
-                                return new Token("INVOLVES", lexemeBuffer);
-                            case "PERMANENT":
-                                return new Token("PERMANENT", lexemeBuffer);
-                            case "NUMBER":
-                                return new Token("NUMBER", lexemeBuffer);
-                            case "BOOLEAN":
-                                return new Token("BOOLEAN", lexemeBuffer);
-                            case "STRING":
-                                return new Token("STRING", lexemeBuffer);
-                            case "ACCEPT":
-                                return new Token("ACCEPT", lexemeBuffer);
-                            case "RETURN":
-                                return new Token("RETURN", lexemeBuffer);
-                            case "WHILE":
-                                return new Token("WHILE", lexemeBuffer);
-                            case "ENDWHILE":
-                                return new Token("ENDWHILE", lexemeBuffer);
-                            case "UNTIL":
-                                return new Token("UNTIL", lexemeBuffer);
-                            case "INCREMENT":
-                                return new Token("INCREMENT", lexemeBuffer);
-                            case "BY":
-                                return new Token("BY", lexemeBuffer);
-                            case "SHOW":
-                                return new Token("SHOW", lexemeBuffer);
-                            case "THE":
-                                return new Token("THE", lexemeBuffer);
-                            case "NOW":
-                                return new Token("NOW", lexemeBuffer);
-                            case "IS":
-                                return new Token("ASSIGNMENT", lexemeBuffer);
-                            case "TRUE":
-                                return new Token("TRUE", lexemeBuffer);
-                            case "FALSE":
-                                return new Token("FALSE", lexemeBuffer);
-                            case "FROM":
-                                return new Token("FROM", lexemeBuffer);
-                            case "ENDFROM":
-                                return new Token("ENDFROM", lexemeBuffer);
-                            case "WHEN":
-                                return new Token("WHEN", lexemeBuffer);
-                            case "ENDWHEN":
-                                return new Token("ENDWHEN", lexemeBuffer);
-                            case "OTHERWISE":
-                                return new Token("OTHERWISE", lexemeBuffer);    
-                            default:
-                                return new Token("ID", lexemeBuffer);
+                        Token temp = Parser.ReservedWordsTable.get(lexemeBuffer);
+                        if (temp == null) {
+                            LastToken = new Token("ID", lexemeBuffer);
+                            return LastToken;
                         }
+                        return temp;
                     }
                 case 20:
 //                    System.out.println((int)c + "=>" + c);
                     if (c == EOF) {
-                        return new Token("EOF", "End of File");
+                        LastToken = new Token("EOF", "End of File");
+                        return LastToken;
                     } else {
                         String temp = c + "";
                         c = read();
-                        return new Token("STXERROR", "Syntax Error! The character " + temp + " is unknown.");
+                        LastToken = new Token("STXERROR", "Syntax Error! The character " + temp + " is unknown. At line " + this.curretLineNum + " at column " + this.currentCol);
+                        return LastToken;
                     }
                 default:
                     String temp = c + "";
                     c = read();
-                    return new Token("STXERROR", "Syntax Error! The character " + temp + " is unknown.");
+                    LastToken = new Token("STXERROR", "Syntax Error! The character " + temp + " is unknown. At line " + this.curretLineNum + " at column " + this.currentCol);
+                    return LastToken;
             }
         }
     }

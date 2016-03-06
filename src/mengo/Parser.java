@@ -41,9 +41,12 @@ public class Parser {
                     case LITSTRING:
                     case NUMCONST:
                     case BOOLEANCONST:
+                    case RELOP:
+                    case LOGICOP:
                         System.out.println("[" + tok.toString() + "]");
                         break;
                     case COMMENT:
+                    case NOISE:
                         break;
                     default:
                         System.out.println("[" + tok.getKind() + "]");
@@ -81,14 +84,15 @@ public class Parser {
         ReservedWordsTable.put("INCREMENT", new Token(TokenType.INCREMENT, "INCREMENT"));
         ReservedWordsTable.put("BY", new Token(TokenType.BY, "BY"));
         ReservedWordsTable.put("SHOW", new Token(TokenType.SHOW, "SHOW"));
-        ReservedWordsTable.put("THE", new Token(TokenType.THE, "THE"));
+        ReservedWordsTable.put("THE", new Token(TokenType.NOISE, "THE"));
         ReservedWordsTable.put("NOW", new Token(TokenType.NOW, "NOW"));
-        ReservedWordsTable.put("IS", new Token(TokenType.IS, "IS"));
+        ReservedWordsTable.put("IS", new Token(TokenType.RELOP, "IS"));
+        ReservedWordsTable.put("ISNT", new Token(TokenType.RELOP, "ISNT"));
         ReservedWordsTable.put("FROM", new Token(TokenType.FROM, "FROM"));
         ReservedWordsTable.put("WHEN", new Token(TokenType.WHEN, "WHEN"));
         ReservedWordsTable.put("ENDWHEN", new Token(TokenType.ENDWHEN, "ENDWHEN"));
         ReservedWordsTable.put("OTHERWISE", new Token(TokenType.OTHERWISE, "OTHERWISE"));
-        ReservedWordsTable.put("BE", new Token(TokenType.BE, "BE"));
+        ReservedWordsTable.put("BE", new Token(TokenType.ASSIGN, "BE"));
         ReservedWordsTable.put("PERMANENT", new Token(TokenType.PERMANENT, "PERMANENT"));
         ReservedWordsTable.put("CONCATENATE", new Token(TokenType.CONCATENATE, "CONCATENATE"));
 

@@ -1,18 +1,9 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package mengo;
 
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.PushbackInputStream;
 
-/**
- *
- * @author lenovo G40-70
- */
 public class LexicalAnalyzer {
 
     private static PushbackInputStream buffRead;
@@ -58,35 +49,28 @@ public class LexicalAnalyzer {
         int state = 1; // Initial state
         String lexemeBuffer = "";
         while (true) {
-//            System.out.println(state + ": " + c);
             switch (state) {
                 case 1:                                                      // SPECIAL SYMBOLS
                     switch (c) {
                         case ' ':
                             c = read();
-                            System.out.print(" ");
                             continue;
                         case '\r':
                             c = read();
-                            System.out.print("\r");
                             continue;
                         case '\b':
                             c = read();
-                            System.out.print("\b");
                             continue;
                         case '\f':
                             c = read();
-                            System.out.print("\f");
                             continue;
                         case '\t':
                             c = read();
-                            System.out.print("\t");
                             continue;
                         case '\n':
                             currentCol = 0;
                             curretLineNum++;
                             c = read();
-                            System.out.print("\n");
                             continue;
                         case 255:                                           //non braking space
                             c = read();
@@ -217,7 +201,7 @@ public class LexicalAnalyzer {
                             state = 8;
                             continue;
                         default:
-                            LastToken = new Token("STXERROR" + "", "Syntax Error! Expecting another \".\" in creating a comment. At line " + this.curretLineNum + " at column " + this.currentCol);
+                            LastToken = new Token("STXERROR" + "", "Syntax Error! Expecting another \".\" in creating a comment. At line " + this.curretLineNum + " at column " + (this.currentCol-1));
                             return LastToken;
                     }
                 case 8:
@@ -228,7 +212,7 @@ public class LexicalAnalyzer {
                             state = 9;
                             continue;
                         default:
-                            LastToken = new Token("STXERROR" + "", "Syntax Error! Expecting \"<\" in creating a comment. At line " + this.curretLineNum + " at column " + this.currentCol);
+                            LastToken = new Token("STXERROR" + "", "Syntax Error! Expecting \"<\" in creating a comment. At line " + this.curretLineNum + " at column " + (this.currentCol-1));
                             return LastToken;
                     }
                 case 9:
@@ -372,20 +356,19 @@ public class LexicalAnalyzer {
                         return temp;
                     }
                 case 20:
-//                    System.out.println((int)c + "=>" + c);
                     if (c == EOF) {
                         LastToken = new Token("EOF", "End of File");
                         return LastToken;
                     } else {
                         String temp = c + "";
                         c = read();
-                        LastToken = new Token("STXERROR", "Syntax Error! The character " + temp + " is unknown. At line " + this.curretLineNum + " at column " + this.currentCol);
+                        LastToken = new Token("STXERROR", "Syntax Error! The character " + temp + " is unknown. At line " + this.curretLineNum + " at column " + (this.currentCol-1));
                         return LastToken;
                     }
                 default:
                     String temp = c + "";
                     c = read();
-                    LastToken = new Token("STXERROR", "Syntax Error! The character " + temp + " is unknown. At line " + this.curretLineNum + " at column " + this.currentCol);
+                    LastToken = new Token("STXERROR", "Syntax Error! The character " + temp + " is unknown. At line " + this.curretLineNum + " at column " + (this.currentCol-1));
                     return LastToken;
             }
         }

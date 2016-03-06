@@ -84,6 +84,8 @@ public class Parser {
         ReservedWordsTable.put("THE", new Token(TokenType.THE, "THE"));
         ReservedWordsTable.put("NOW", new Token(TokenType.NOW, "NOW"));
         ReservedWordsTable.put("IS", new Token(TokenType.IS, "IS"));
+        ReservedWordsTable.put("ISNT", new Token(TokenType.ISNT, "ISNT"));
+        
         ReservedWordsTable.put("FROM", new Token(TokenType.FROM, "FROM"));
         ReservedWordsTable.put("WHEN", new Token(TokenType.WHEN, "WHEN"));
         ReservedWordsTable.put("ENDWHEN", new Token(TokenType.ENDWHEN, "ENDWHEN"));

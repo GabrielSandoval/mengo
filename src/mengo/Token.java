@@ -31,6 +31,7 @@ public class Token {
 }
 
 enum TokenType {
+
     STXERROR,
     STXERRORTERMINATE,
     HELLO,
@@ -48,18 +49,13 @@ enum TokenType {
     WHILE,
     ENDWHILE,
     UNTIL,
-    INCREMENT,
-    BY,
     SHOW,
     THE,
     NOW,
-    IS,
-    ISNT,
     FROM,
     WHEN,
     ENDWHEN,
     OTHERWISE,
-    BE,
     ADD,
     SUB,
     MUL,
@@ -68,13 +64,8 @@ enum TokenType {
     COMMA,
     LPAREN,
     RPAREN,
-    AND,
-    OR,
-    NOT,
-    LTE,
-    LT,
-    GTE,
-    GT,
+    LOGICOP,
+    RELOP,
     PERIOD,
     COMMENT,
     NUMCONST,
@@ -83,5 +74,9 @@ enum TokenType {
     ID,
     PERMANENT,
     CONCATENATE,
-    EOF
+    EOF,
+    ASSIGN,
+    INCREMENT,
+    BY,
+    NOISE
 }

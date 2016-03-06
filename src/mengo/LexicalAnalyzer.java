@@ -128,17 +128,17 @@ public class LexicalAnalyzer {
                         case '&':
                             lexemeBuffer += c + "";
                             c = read();
-                            LastToken = new Token(TokenType.AND, lexemeBuffer);
+                            LastToken = new Token(TokenType.LOGICOP, lexemeBuffer);
                             return LastToken;
                         case '|':
                             lexemeBuffer += c + "";
                             c = read();
-                            LastToken = new Token(TokenType.OR, lexemeBuffer);
+                            LastToken = new Token(TokenType.LOGICOP, lexemeBuffer);
                             return LastToken;
                         case '~':
                             lexemeBuffer += c + "";
                             c = read();
-                            LastToken = new Token(TokenType.NOT, lexemeBuffer);
+                            LastToken = new Token(TokenType.LOGICOP, lexemeBuffer);
                             return LastToken;
                         default:
                             state = 4;
@@ -150,10 +150,10 @@ public class LexicalAnalyzer {
                         case '=':
                             lexemeBuffer += c + "";
                             c = read();
-                            LastToken = new Token(TokenType.LTE, lexemeBuffer);
+                            LastToken = new Token(TokenType.RELOP, lexemeBuffer);
                             return LastToken;
                         default:
-                            LastToken = new Token(TokenType.LT, "<");
+                            LastToken = new Token(TokenType.RELOP, "<");
                             return LastToken;
                     }
 
@@ -162,10 +162,10 @@ public class LexicalAnalyzer {
                         case '=':
                             lexemeBuffer += c + "";
                             c = read();
-                            LastToken = new Token(TokenType.GTE, lexemeBuffer);
+                            LastToken = new Token(TokenType.RELOP, lexemeBuffer);
                             return LastToken;
                         default:
-                            LastToken = new Token(TokenType.GT, ">");
+                            LastToken = new Token(TokenType.RELOP, ">");
                             return LastToken;
                     }
 

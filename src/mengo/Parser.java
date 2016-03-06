@@ -91,5 +91,6 @@ public class Parser {
         ReservedWordsTable.put("BE", new Token(TokenType.BE, "BE"));
         ReservedWordsTable.put("PERMANENT", new Token(TokenType.PERMANENT, "PERMANENT"));
         ReservedWordsTable.put("CONCATENATE", new Token(TokenType.CONCATENATE, "CONCATENATE"));
+
     }
 }

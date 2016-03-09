@@ -53,6 +53,7 @@ enum TokenType {
     THE,
     NOW,
     FROM,
+    ENDFROM,
     WHEN,
     ENDWHEN,
     OTHERWISE,

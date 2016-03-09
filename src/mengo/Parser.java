@@ -4,6 +4,8 @@ import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
 public class Parser {
 
@@ -58,6 +60,14 @@ public class Parser {
             System.out.println();
             System.out.println("Done tokenizing file: " + inFile);
             System.out.println("Output written in file: " + outFile);
+
+            System.out.println("\nContents of ID Table: ");
+            Iterator it = IdentifierTable.entrySet().iterator();
+            while (it.hasNext()) {
+                Map.Entry pair = (Map.Entry) it.next();
+                System.out.println(pair.getKey() + " = " + pair.getValue());
+                it.remove(); // avoids a ConcurrentModificationException
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -89,6 +99,7 @@ public class Parser {
         ReservedWordsTable.put("IS", new Token(TokenType.RELOP, "IS"));
         ReservedWordsTable.put("ISNT", new Token(TokenType.RELOP, "ISNT"));
         ReservedWordsTable.put("FROM", new Token(TokenType.FROM, "FROM"));
+        ReservedWordsTable.put("ENDFROM", new Token(TokenType.ENDFROM, "ENDFROM"));
         ReservedWordsTable.put("WHEN", new Token(TokenType.WHEN, "WHEN"));
         ReservedWordsTable.put("ENDWHEN", new Token(TokenType.ENDWHEN, "ENDWHEN"));
         ReservedWordsTable.put("OTHERWISE", new Token(TokenType.OTHERWISE, "OTHERWISE"));

@@ -51,7 +51,6 @@ enum TokenType {
     UNTIL,
     SHOW,
     THE,
-    NOW,
     FROM,
     ENDFROM,
     WHEN,

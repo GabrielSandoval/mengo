@@ -95,7 +95,6 @@ public class Parser {
         ReservedWordsTable.put("BY", new Token(TokenType.BY, "BY"));
         ReservedWordsTable.put("SHOW", new Token(TokenType.SHOW, "SHOW"));
         ReservedWordsTable.put("THE", new Token(TokenType.NOISE, "THE"));
-        ReservedWordsTable.put("NOW", new Token(TokenType.NOW, "NOW"));
         ReservedWordsTable.put("IS", new Token(TokenType.RELOP, "IS"));
         ReservedWordsTable.put("ISNT", new Token(TokenType.RELOP, "ISNT"));
         ReservedWordsTable.put("FROM", new Token(TokenType.FROM, "FROM"));

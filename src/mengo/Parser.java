@@ -13,17 +13,16 @@ public class Parser {
     public static HashMap<String, Token> IdentifierTable = new HashMap();
 
     public static void main(String[] args) {
-        String root = "C:\\Users\\Jullian\\Desktop\\";
-        String inFile = root + "SAMPLE PROGRAM.mpl";
+        String root = "E:\\Jullian\\4thyr_2nd sem\\CS105 - Compiler Design\\";
+        String inFile = root + "SAMPLE2.mpl";
         String outFile = root + "sample2out.mpl";
 
         LexicalAnalyzer lexAnalyzer = new LexicalAnalyzer(inFile);
         FillReservedWordTable();
         try {
-
             BufferedWriter writer = new BufferedWriter(new FileWriter(outFile));
 
-            Token tok = new Token();
+            Token tok;
 
             loop:
             while ((tok = lexAnalyzer.nextToken()) != null) {

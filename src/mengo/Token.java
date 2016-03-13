@@ -78,5 +78,7 @@ enum TokenType {
     ASSIGN,
     INCREMENT,
     BY,
-    NOISE
+    NOISE,
+    UNARYMINUS,
+    UNARYPLUS
 }

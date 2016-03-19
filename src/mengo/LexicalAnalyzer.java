@@ -28,7 +28,12 @@ public class LexicalAnalyzer {
     private char read() {
         try {
             currentCol++;
-            return (char) (buffRead.read());
+            char c = (char)buffRead.read();
+            if (c == '\n') {
+                this.curretLineNum++;
+                this.currentCol = 0;
+            }
+            return (char) (c);
         } catch (IOException e) {
             e.printStackTrace();
             return (char) -2;
@@ -68,8 +73,6 @@ public class LexicalAnalyzer {
                             c = read();
                             continue;
                         case '\n':
-                            currentCol = 0;
-                            curretLineNum++;
                             c = read();
                             continue;
                         case 255:                                           //non braking space
@@ -78,53 +81,53 @@ public class LexicalAnalyzer {
                         case '+':
                             lexemeBuffer += c + "";
                             c = read();
-                            while(c == ' ' || c == '\n' || c == '\t'){
+                            while (c == ' ' || c == '\n' || c == '\t') {
                                 c = read();
                             }
                             if (LastToken.getKind() == TokenType.NUMCONST || LastToken.getKind() == TokenType.ID) {
-                                LastToken = new Token(TokenType.ADD, lexemeBuffer);
+                                setLastToken(new Token(TokenType.ADD, lexemeBuffer));
                                 return LastToken;
                             } else {
                                 if (isNumber(c)) {
                                     state = 13;
                                     continue;
                                 } else {
-                                    LastToken = new Token(TokenType.UNARYPLUS, lexemeBuffer);
+                                    setLastToken(new Token(TokenType.UNARYPLUS, lexemeBuffer));
                                     return LastToken;
                                 }
                             }
                         case '-':
                             lexemeBuffer += c + "";
                             c = read();
-                            while(c == ' ' || c == '\n' || c == '\t'){
+                            while (c == ' ' || c == '\n' || c == '\t') {
                                 c = read();
                             }
                             if (LastToken.getKind() == TokenType.NUMCONST || LastToken.getKind() == TokenType.ID) {
-                                LastToken = new Token(TokenType.SUB, lexemeBuffer);
+                                setLastToken(new Token(TokenType.SUB, lexemeBuffer));
                                 return LastToken;
                             } else {
                                 if (isNumber(c)) {
                                     state = 13;
                                     continue;
                                 } else {
-                                    LastToken = new Token(TokenType.UNARYMINUS, lexemeBuffer);
+                                    setLastToken(new Token(TokenType.UNARYMINUS, lexemeBuffer));
                                     return LastToken;
                                 }
                             }
                         case '*':
                             lexemeBuffer += c + "";
                             c = read();
-                            LastToken = new Token(TokenType.MUL, lexemeBuffer);
+                            setLastToken(new Token(TokenType.MUL, lexemeBuffer));
                             return LastToken;
                         case '/':
                             lexemeBuffer += c + "";
                             c = read();
-                            LastToken = new Token(TokenType.DIV, lexemeBuffer);
+                            setLastToken(new Token(TokenType.DIV, lexemeBuffer));
                             return LastToken;
                         case '%':
                             lexemeBuffer += c + "";
                             c = read();
-                            LastToken = new Token(TokenType.MOD, lexemeBuffer);
+                            setLastToken(new Token(TokenType.MOD, lexemeBuffer));
                             return LastToken;
                         case '<':
                             lexemeBuffer += c + "";
@@ -139,32 +142,32 @@ public class LexicalAnalyzer {
                         case ',':
                             lexemeBuffer += c + "";
                             c = read();
-                            LastToken = new Token(TokenType.COMMA, lexemeBuffer);
+                            setLastToken(new Token(TokenType.COMMA, lexemeBuffer));
                             return LastToken;
                         case '(':
                             lexemeBuffer += c + "";
                             c = read();
-                            LastToken = new Token(TokenType.LPAREN, lexemeBuffer);
+                            setLastToken(new Token(TokenType.LPAREN, lexemeBuffer));
                             return LastToken;
                         case ')':
                             lexemeBuffer += c + "";
                             c = read();
-                            LastToken = new Token(TokenType.RPAREN, lexemeBuffer);
+                            setLastToken(new Token(TokenType.RPAREN, lexemeBuffer));
                             return LastToken;
                         case '&':
                             lexemeBuffer += c + "";
                             c = read();
-                            LastToken = new Token(TokenType.LOGICOP, lexemeBuffer);
+                            setLastToken(new Token(TokenType.LOGICOP, lexemeBuffer));
                             return LastToken;
                         case '|':
                             lexemeBuffer += c + "";
                             c = read();
-                            LastToken = new Token(TokenType.LOGICOP, lexemeBuffer);
+                            setLastToken(new Token(TokenType.LOGICOP, lexemeBuffer));
                             return LastToken;
                         case '~':
                             lexemeBuffer += c + "";
                             c = read();
-                            LastToken = new Token(TokenType.LOGICOP, lexemeBuffer);
+                            setLastToken(new Token(TokenType.LOGICOP, lexemeBuffer));
                             return LastToken;
                         default:
                             state = 4;
@@ -176,10 +179,10 @@ public class LexicalAnalyzer {
                         case '=':
                             lexemeBuffer += c + "";
                             c = read();
-                            LastToken = new Token(TokenType.RELOP, lexemeBuffer);
+                            setLastToken(new Token(TokenType.RELOP, lexemeBuffer));
                             return LastToken;
                         default:
-                            LastToken = new Token(TokenType.RELOP, "<");
+                            setLastToken(new Token(TokenType.RELOP, "<"));
                             return LastToken;
                     }
 
@@ -188,10 +191,10 @@ public class LexicalAnalyzer {
                         case '=':
                             lexemeBuffer += c + "";
                             c = read();
-                            LastToken = new Token(TokenType.RELOP, lexemeBuffer);
+                            setLastToken(new Token(TokenType.RELOP, lexemeBuffer));
                             return LastToken;
                         default:
-                            LastToken = new Token(TokenType.RELOP, ">");
+                            setLastToken(new Token(TokenType.RELOP, ">"));
                             return LastToken;
                     }
 
@@ -216,7 +219,7 @@ public class LexicalAnalyzer {
                         default:
                             unread(c);
                             c = read();
-                            LastToken = new Token(TokenType.PERIOD, ".");
+                            setLastToken(new Token(TokenType.PERIOD, "."));
                             return LastToken;
                     }
                 case 7:
@@ -227,7 +230,7 @@ public class LexicalAnalyzer {
                             state = 8;
                             continue;
                         default:
-                            LastToken = new Token(TokenType.STXERROR, "Syntax Error! Expecting another \".\" in creating a comment. At line " + this.curretLineNum + " at column " + (this.currentCol - 1));
+                            setLastToken(new Token(TokenType.STXERROR, "Syntax Error! Expecting another \".\" in creating a comment. At line " + this.curretLineNum + " at column " + (this.currentCol - 1)));
                             return LastToken;
                     }
                 case 8:
@@ -238,7 +241,7 @@ public class LexicalAnalyzer {
                             state = 9;
                             continue;
                         default:
-                            LastToken = new Token(TokenType.STXERROR, "Syntax Error! Expecting \"<\" in creating a comment. At line " + this.curretLineNum + " at column " + (this.currentCol - 1));
+                            setLastToken(new Token(TokenType.STXERROR, "Syntax Error! Expecting \"<\" in creating a comment. At line " + this.curretLineNum + " at column " + (this.currentCol - 1)));
                             return LastToken;
                     }
                 case 9:
@@ -249,12 +252,8 @@ public class LexicalAnalyzer {
                             state = 10;
                             continue;
                         default:
-                            if (c == '\n') {
-                                this.curretLineNum++;
-                                
-                            }
                             if (c == EOF) {
-                                LastToken = new Token(TokenType.STXERRORTERMINATE, "EOF found, comment unfinished at line " + this.curretLineNum + " at " + (this.currentCol - 1));
+                                setLastToken(new Token(TokenType.STXERRORTERMINATE, "EOF found, comment unfinished at line " + this.curretLineNum + " at " + (this.currentCol - 1)));
                                 return LastToken;
                             }
                             lexemeBuffer += c + "";
@@ -270,7 +269,7 @@ public class LexicalAnalyzer {
                             continue;
                         default:
                             if (c == EOF) {
-                                LastToken = new Token(TokenType.STXERRORTERMINATE, "EOF found, comment unfinished at line " + this.curretLineNum + " at " + (this.currentCol - 1));
+                                setLastToken(new Token(TokenType.STXERRORTERMINATE, "EOF found, comment unfinished at line " + this.curretLineNum + " at " + (this.currentCol - 1)));
                                 return LastToken;
                             }
                             state = 9;
@@ -285,7 +284,7 @@ public class LexicalAnalyzer {
                             continue;
                         default:
                             if (c == EOF) {
-                                LastToken = new Token(TokenType.STXERRORTERMINATE, "EOF found, comment unfinished at line " + this.curretLineNum + " at " + (this.currentCol - 1));
+                                setLastToken(new Token(TokenType.STXERRORTERMINATE, "EOF found, comment unfinished at line " + this.curretLineNum + " at " + (this.currentCol - 1)));
                                 return LastToken;
                             }
                             state = 9;
@@ -296,11 +295,11 @@ public class LexicalAnalyzer {
                         case '.':
                             lexemeBuffer += c + "";
                             c = read();
-                            LastToken = new Token(TokenType.COMMENT, lexemeBuffer);
+                            setLastToken(new Token(TokenType.COMMENT, lexemeBuffer));
                             return LastToken;
                         default:
                             if (c == EOF) {
-                                LastToken = new Token(TokenType.STXERRORTERMINATE, "EOF found, comment unfinished at line " + this.curretLineNum + " at " + (this.currentCol - 1));
+                                setLastToken(new Token(TokenType.STXERRORTERMINATE, "EOF found, comment unfinished at line " + this.curretLineNum + " at " + (this.currentCol - 1)));
                                 return LastToken;
                             }
                             state = 9;
@@ -327,7 +326,7 @@ public class LexicalAnalyzer {
                         c = read();
                         continue;
                     } else {
-                        LastToken = new Token(TokenType.NUMCONST, lexemeBuffer);
+                        setLastToken(new Token(TokenType.NUMCONST, lexemeBuffer));
                         return LastToken;
                     }
                 case 15:
@@ -338,7 +337,7 @@ public class LexicalAnalyzer {
                                 lexemeBuffer += c + "";
                                 c = read();
                             } else {
-                                LastToken = new Token(TokenType.NUMCONST, lexemeBuffer);
+                                setLastToken(new Token(TokenType.NUMCONST, lexemeBuffer));
                                 return LastToken;
                             }
                         }
@@ -346,7 +345,7 @@ public class LexicalAnalyzer {
                         unread(c);
                         unread('.');
                         c = read();
-                        LastToken = new Token(TokenType.NUMCONST, lexemeBuffer);
+                        setLastToken(new Token(TokenType.NUMCONST, lexemeBuffer));
                         return LastToken;
                     }
 
@@ -366,12 +365,9 @@ public class LexicalAnalyzer {
                         case '\"':
                             lexemeBuffer += c + "";
                             c = read();
-                            LastToken = new Token(TokenType.LITSTRING, lexemeBuffer);
+                            setLastToken(new Token(TokenType.LITSTRING, lexemeBuffer));
                             return LastToken;
                         default:
-                            if (c == '\n') {
-                                this.curretLineNum++;
-                            }
                             lexemeBuffer += c + "";
                             c = read();
                             continue;
@@ -397,31 +393,47 @@ public class LexicalAnalyzer {
                         c = read();
                         Token temp = Parser.ReservedWordsTable.get(lexemeBuffer);
                         if (temp == null) {
-                            LastToken = new Token(TokenType.ID, lexemeBuffer);
+                            setLastToken(new Token(TokenType.ID, lexemeBuffer));
                             return LastToken;
                         }
-                        return temp;
+                        setLastToken(temp);
+                        return LastToken;
                     }
                 case 20:
                     if (c == EOF) {
-                        LastToken = new Token(TokenType.EOF, "End of File");
+                        setLastToken(new Token(TokenType.EOF, "End of File"));
                         return LastToken;
                     } else {
                         String temp = c + "";
                         c = read();
-                        LastToken = new Token(TokenType.STXERROR, "Syntax Error! The character " + temp + " is unknown. Remove character at line " + this.curretLineNum + " at column " + (this.currentCol - 1));
+                        setLastToken(new Token(TokenType.STXERROR, "Syntax Error! The character " + temp + " is unknown. Remove character at line " + this.curretLineNum + " at column " + (this.currentCol - 1)));
                         return LastToken;
                     }
                 default:
                     String temp = c + "";
                     c = read();
-                    LastToken = new Token(TokenType.STXERROR, "Syntax Error! The character " + temp + " is unknown. Remove character at line " + this.curretLineNum + " at column " + (this.currentCol - 1));
+                    setLastToken(new Token(TokenType.STXERROR, "Syntax Error! The character " + temp + " is unknown. Remove character at line " + this.curretLineNum + " at column " + (this.currentCol - 1)));
                     return LastToken;
             }
         }
     }
 
+    public void setLastToken(Token t) {
+        if (LastToken != null) {
+            if(t.getKind() == TokenType.ID){
+                Parser.IdentifierTable.put(t.getLexeme(), t);
+            }
+            if (t.getKind() != TokenType.ID && LastToken.getKind() == TokenType.THE) {
+                LastToken = new Token(TokenType.STXERROR, "Syntax Error! the keyword \"THE\" does not appear before a literal string. At line number: " + this.curretLineNum);
+            } else {
+                LastToken = t;
+            }
+        } else {
+            LastToken = t;
+        }
+    }
 // HELPERS
+
     public static boolean isLetter(char c) {
         String symbol = "" + c + "";
         if ("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz".contains(symbol)) {

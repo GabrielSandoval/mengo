@@ -78,13 +78,39 @@ public class LexicalAnalyzer {
                         case '+':
                             lexemeBuffer += c + "";
                             c = read();
-                            LastToken = new Token(TokenType.ADD, lexemeBuffer);
-                            return LastToken;
+                            while(c == ' ' || c == '\n' || c == '\t'){
+                                c = read();
+                            }
+                            if (LastToken.getKind() == TokenType.NUMCONST || LastToken.getKind() == TokenType.ID) {
+                                LastToken = new Token(TokenType.ADD, lexemeBuffer);
+                                return LastToken;
+                            } else {
+                                if (isNumber(c)) {
+                                    state = 13;
+                                    continue;
+                                } else {
+                                    LastToken = new Token(TokenType.UNARYPLUS, lexemeBuffer);
+                                    return LastToken;
+                                }
+                            }
                         case '-':
                             lexemeBuffer += c + "";
                             c = read();
-                            LastToken = new Token(TokenType.SUB, lexemeBuffer);
-                            return LastToken;
+                            while(c == ' ' || c == '\n' || c == '\t'){
+                                c = read();
+                            }
+                            if (LastToken.getKind() == TokenType.NUMCONST || LastToken.getKind() == TokenType.ID) {
+                                LastToken = new Token(TokenType.SUB, lexemeBuffer);
+                                return LastToken;
+                            } else {
+                                if (isNumber(c)) {
+                                    state = 13;
+                                    continue;
+                                } else {
+                                    LastToken = new Token(TokenType.UNARYMINUS, lexemeBuffer);
+                                    return LastToken;
+                                }
+                            }
                         case '*':
                             lexemeBuffer += c + "";
                             c = read();
@@ -225,9 +251,10 @@ public class LexicalAnalyzer {
                         default:
                             if (c == '\n') {
                                 this.curretLineNum++;
+                                
                             }
                             if (c == EOF) {
-                                LastToken = new Token(TokenType.STXERRORTERMINATE, "EOF found, comment unfinished at line " + this.curretLineNum  + " at " + (this.currentCol-1));
+                                LastToken = new Token(TokenType.STXERRORTERMINATE, "EOF found, comment unfinished at line " + this.curretLineNum + " at " + (this.currentCol - 1));
                                 return LastToken;
                             }
                             lexemeBuffer += c + "";
@@ -243,7 +270,7 @@ public class LexicalAnalyzer {
                             continue;
                         default:
                             if (c == EOF) {
-                                LastToken = new Token(TokenType.STXERRORTERMINATE, "EOF found, comment unfinished at line " + this.curretLineNum  + " at " + (this.currentCol-1));
+                                LastToken = new Token(TokenType.STXERRORTERMINATE, "EOF found, comment unfinished at line " + this.curretLineNum + " at " + (this.currentCol - 1));
                                 return LastToken;
                             }
                             state = 9;
@@ -258,10 +285,11 @@ public class LexicalAnalyzer {
                             continue;
                         default:
                             if (c == EOF) {
-                                LastToken = new Token(TokenType.STXERRORTERMINATE, "EOF found, comment unfinished at line " + this.curretLineNum  + " at " + (this.currentCol-1));
+                                LastToken = new Token(TokenType.STXERRORTERMINATE, "EOF found, comment unfinished at line " + this.curretLineNum + " at " + (this.currentCol - 1));
                                 return LastToken;
                             }
                             state = 9;
+                            continue;
                     }
                 case 12:                                                        // END OF COMMENT
                     switch (c) {
@@ -272,10 +300,11 @@ public class LexicalAnalyzer {
                             return LastToken;
                         default:
                             if (c == EOF) {
-                                LastToken = new Token(TokenType.STXERRORTERMINATE, "EOF found, comment unfinished at line " + this.curretLineNum  + " at " + (this.currentCol-1));
+                                LastToken = new Token(TokenType.STXERRORTERMINATE, "EOF found, comment unfinished at line " + this.curretLineNum + " at " + (this.currentCol - 1));
                                 return LastToken;
                             }
                             state = 9;
+                            continue;
                     }
                 case 13:                                                        // NUMERIC CONSTANT
                     if (isNumber(c)) {

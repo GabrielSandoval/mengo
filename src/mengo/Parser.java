@@ -37,7 +37,6 @@ public class Parser {
                         break loop;
                     case ID:
                         System.out.println("[" + tok.toString() + "]");
-                        IdentifierTable.put(tok.getLexeme(), tok);
                         break;
                     case LITSTRING:
                     case NUMCONST:
@@ -47,7 +46,7 @@ public class Parser {
                         System.out.println("[" + tok.toString() + "]");
                         break;
                     case COMMENT:
-                    case NOISE:
+                    case THE:
                         break;
                     default:
                         System.out.println("[" + tok.getKind() + "]");
@@ -93,7 +92,7 @@ public class Parser {
         ReservedWordsTable.put("INCREMENT", new Token(TokenType.INCREMENT, "INCREMENT"));
         ReservedWordsTable.put("BY", new Token(TokenType.BY, "BY"));
         ReservedWordsTable.put("SHOW", new Token(TokenType.SHOW, "SHOW"));
-        ReservedWordsTable.put("THE", new Token(TokenType.NOISE, "THE"));
+        ReservedWordsTable.put("THE", new Token(TokenType.THE, "THE"));
         ReservedWordsTable.put("IS", new Token(TokenType.RELOP, "IS"));
         ReservedWordsTable.put("ISNT", new Token(TokenType.RELOP, "ISNT"));
         ReservedWordsTable.put("FROM", new Token(TokenType.FROM, "FROM"));

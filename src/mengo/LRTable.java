@@ -9,11 +9,20 @@ import java.util.HashMap;
 
 public class LRTable {
 
-    public static HashMap<String, State> States;
+    public static HashMap<String, State> States = new HashMap<>();
 
     public static void main(String[] args) throws FileNotFoundException, IOException {
-        States = new HashMap<>();
-        BufferedReader inFile = new BufferedReader(new FileReader("C:\\Users\\Jullian\\Desktop\\Book1.csv"));
+        CreateTable();
+        //insert loop here
+        //test
+        System.out.println(getAction("0", TokenType.ADD));
+        System.out.println(getAction("2", TokenType.$));
+        System.out.println(getAction("0", "E"));
+        System.out.println(getAction("2", TokenType.SUB));
+        System.out.println(getAction("4", "F"));
+    }
+    static void CreateTable() throws FileNotFoundException, IOException{
+        BufferedReader inFile = new BufferedReader(new FileReader("src\\LRTable.csv"));
         String line = inFile.readLine();
         ArrayList<TokenType> TokenTypeList = new ArrayList();
         ArrayList<String> VariableList = new ArrayList();
@@ -70,17 +79,11 @@ public class LRTable {
                     listctr++;
                 } while (ctr <= TokenTypeList.size() + VariableList.size());
             }
-            System.out.println("");
+            //System.out.println("");
             line = inFile.readLine();
         }
-        inFile.close();
-        System.out.println(getAction("0", TokenType.ADD));
-        System.out.println(getAction("2", TokenType.$));
-        System.out.println(getAction("0", "E"));
-        System.out.println(getAction("2", TokenType.SUB));
-        System.out.println(getAction("4", "F"));
+        inFile.close();        
     }
-
     static TokenType getTokenType(String lexeme) throws IOException {
         return TokenType.valueOf(lexeme);
     }

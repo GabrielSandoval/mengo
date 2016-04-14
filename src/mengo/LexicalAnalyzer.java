@@ -1,5 +1,6 @@
 package mengo;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.PushbackInputStream;
@@ -24,7 +25,16 @@ public class LexicalAnalyzer {
         }
         c = read();
     }
-
+    public LexicalAnalyzer(File inFile) {
+        LastToken = null;
+        lookahead = 10;
+        try {
+            buffRead = new PushbackInputStream(new FileInputStream(inFile), lookahead);
+        } catch (Exception e) {
+            System.out.println(e);
+        }
+        c = read();
+    }
     private char read() {
         try {
             currentCol++;
@@ -84,7 +94,7 @@ public class LexicalAnalyzer {
                             while (c == ' ' || c == '\n' || c == '\t') {
                                 c = read();
                             }
-                            if (LastToken.getKind() == TokenType.NUMCONST || LastToken.getKind() == TokenType.ID) {
+                            if (LastToken!= null && (LastToken.getKind() == TokenType.NUMCONST || LastToken.getKind() == TokenType.ID)) {
                                 setLastToken(new Token(TokenType.ADD, lexemeBuffer));
                                 return LastToken;
                             } else {
@@ -102,7 +112,7 @@ public class LexicalAnalyzer {
                             while (c == ' ' || c == '\n' || c == '\t') {
                                 c = read();
                             }
-                            if (LastToken.getKind() == TokenType.NUMCONST || LastToken.getKind() == TokenType.ID) {
+                            if (LastToken!= null && (LastToken.getKind() == TokenType.NUMCONST || LastToken.getKind() == TokenType.ID)) {
                                 setLastToken(new Token(TokenType.SUB, lexemeBuffer));
                                 return LastToken;
                             } else {

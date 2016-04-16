@@ -9,7 +9,10 @@ public class Token {
         kind = TokenType.STXERROR;
         lexeme = "";
     }
-
+    @Override
+    public String toString(){
+        return lexeme;
+    }
     public Token(TokenType tokKind, String tokLexeme) {
         kind = tokKind;
         lexeme = tokLexeme;
@@ -25,13 +28,14 @@ public class Token {
     }
 
     // Returns a string representation of the token
+    /*
     public String toString() {
         return kind + ": " + lexeme;
     }
+*/
 }
 
 enum TokenType {
-
     STXERROR,
     STXERRORTERMINATE,
     HELLO,
@@ -80,5 +84,6 @@ enum TokenType {
     BY,
     NOISE,
     UNARYMINUS,
-    UNARYPLUS
+    UNARYPLUS,
+    NOT
 }

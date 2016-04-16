@@ -423,13 +423,13 @@ public class LexicalAnalyzer {
                     } else {
                         String temp = c + "";
                         c = read();
-                        setLastToken(new Token(TokenType.STXERROR, "Syntax Error! The character " + temp + " is unknown. Remove character at line " + this.currentLineNum + " at column " + (this.currentCol - 1)));
+                        setLastToken(new Token(TokenType.STXERROR, "Lexical Error! The character " + temp + " is unknown. Remove character at line " + this.currentLineNum + " at column " + (this.currentCol - 1)));
                         return LastToken;
                     }
                 default:
                     String temp = c + "";
                     c = read();
-                    setLastToken(new Token(TokenType.STXERROR, "Syntax Error! The character " + temp + " is unknown. Remove character at line " + this.currentLineNum + " at column " + (this.currentCol - 1)));
+                    setLastToken(new Token(TokenType.STXERROR, "Lexical Error! The character " + temp + " is unknown. Remove character at line " + this.currentLineNum + " at column " + (this.currentCol - 1)));
                     return LastToken;
             }
         }

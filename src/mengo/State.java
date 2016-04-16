@@ -1,6 +1,9 @@
 package mengo;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
 public class State {
 
@@ -13,7 +16,18 @@ public class State {
     State(String s) {
         state = s;
     }
-
+    ArrayList getExpectedTokens(){
+        ArrayList temp = new ArrayList();
+        Iterator it = ActionItemList.entrySet().iterator();
+        while (it.hasNext()) {
+            Map.Entry<TokenType, ActionItem> pair = (Map.Entry) it.next();
+            if(pair.getValue().Act.Action != LRAction.no_action){
+                temp.add(pair.getKey());
+            }
+            it.remove(); // avoids a ConcurrentModificationException
+        }
+        return temp;
+    }
     Action getLRAction(TokenType tokentype) {
         ActionItem a = ActionItemList.get(tokentype);
         return a.GetLRAction();

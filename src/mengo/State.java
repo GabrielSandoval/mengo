@@ -14,11 +14,17 @@ public class State {
         state = s;
     }
 
-    String getAction(TokenType t) {
-        ActionItem a = ActionItemList.get(t);
-        return a.toString();
+    Action getLRAction(TokenType tokentype) {
+        ActionItem a = ActionItemList.get(tokentype);
+        return a.GetLRAction();
     }
-
+    String getGotoVariable(String variable){
+        if (GotoItemList.get(variable) == null) {
+            return "no action. Error, goto item not found";
+        }
+        //System.out.println(GotoItemList.get(variable).GotoState);
+        return GotoItemList.get(variable).getGotoItem();
+    }
     void addActionItem(TokenType tt, LRAction act, String state) {
         if (state == null) {
             if (act == LRAction.accept || act == LRAction.no_action) {
@@ -39,7 +45,7 @@ public class State {
         if (GotoItemList.get(g) == null) {
             return "no action. Error, goto item not found";
         }
-        return GotoItemList.get(g).toString();
+        return GotoItemList.get(g).getGotoItem();
     }
 }
 
@@ -61,20 +67,17 @@ class GotoItem {
         if (v != null && gs != null) {
             Variable = v;
             GotoState = gs;
-        }
-        else if(v!=null && gs ==null){
+        } else if (v != null && gs == null) {
             Variable = v;
             GotoState = "No action, Error in table.";
-        }
-        else{
+        } else {
             Variable = "Error";
             GotoState = "No action, Error in table.";
         }
     }
 
-    @Override
-    public String toString() {
-        return "Goto " + GotoState;
+    public String getGotoItem() {
+        return GotoState;
     }
 }
 
@@ -98,6 +101,10 @@ class ActionItem {
         Act.ActionState = s;
     }
 
+    Action GetLRAction() {
+        return Act;
+    }
+
     @Override
     public String toString() {
         switch (Act.Action) {
@@ -115,9 +122,10 @@ class ActionItem {
     }
 
     //kalat here haha create proper constructors
-    class Action {
+}
 
-        public LRAction Action;
-        public String ActionState;
-    }
+class Action {
+
+    public LRAction Action;
+    public String ActionState;
 }

@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.PushbackInputStream;
+import java.util.HashMap;
 
 public class LexicalAnalyzer {
 
@@ -12,10 +13,16 @@ public class LexicalAnalyzer {
     private static int EOF = 65535;
     private static int lookahead;
     private int currentCol = 0;
-    private int curretLineNum = 1;
+    private int currentLineNum = 1;
     public Token LastToken;
-
-    public LexicalAnalyzer(String inFile) {
+    HashMap<String, Token> IdentifierTable;
+    HashMap<String, Token> ReservedWordsTable;
+    int getCurrentLineNumber(){
+        return currentLineNum;
+    }
+    public LexicalAnalyzer(String inFile, HashMap<String, Token> IdTable, HashMap<String, Token> RWsTable) {
+        ReservedWordsTable = RWsTable;
+        IdentifierTable = IdTable;
         LastToken = null;
         lookahead = 10;
         try {
@@ -40,7 +47,7 @@ public class LexicalAnalyzer {
             currentCol++;
             char c = (char)buffRead.read();
             if (c == '\n') {
-                this.curretLineNum++;
+                this.currentLineNum++;
                 this.currentCol = 0;
             }
             return (char) (c);
@@ -177,7 +184,7 @@ public class LexicalAnalyzer {
                         case '~':
                             lexemeBuffer += c + "";
                             c = read();
-                            setLastToken(new Token(TokenType.LOGICOP, lexemeBuffer));
+                            setLastToken(new Token(TokenType.NOT, lexemeBuffer));
                             return LastToken;
                         default:
                             state = 4;
@@ -240,7 +247,7 @@ public class LexicalAnalyzer {
                             state = 8;
                             continue;
                         default:
-                            setLastToken(new Token(TokenType.STXERROR, "Syntax Error! Expecting another \".\" in creating a comment. At line " + this.curretLineNum + " at column " + (this.currentCol - 1)));
+                            setLastToken(new Token(TokenType.STXERROR, "Syntax Error! Expecting another \".\" in creating a comment. At line " + this.currentLineNum + " at column " + (this.currentCol - 1)));
                             return LastToken;
                     }
                 case 8:
@@ -251,7 +258,7 @@ public class LexicalAnalyzer {
                             state = 9;
                             continue;
                         default:
-                            setLastToken(new Token(TokenType.STXERROR, "Syntax Error! Expecting \"<\" in creating a comment. At line " + this.curretLineNum + " at column " + (this.currentCol - 1)));
+                            setLastToken(new Token(TokenType.STXERROR, "Syntax Error! Expecting \"<\" in creating a comment. At line " + this.currentLineNum + " at column " + (this.currentCol - 1)));
                             return LastToken;
                     }
                 case 9:
@@ -263,7 +270,7 @@ public class LexicalAnalyzer {
                             continue;
                         default:
                             if (c == EOF) {
-                                setLastToken(new Token(TokenType.STXERRORTERMINATE, "EOF found, comment unfinished at line " + this.curretLineNum + " at " + (this.currentCol - 1)));
+                                setLastToken(new Token(TokenType.STXERRORTERMINATE, "EOF found, comment unfinished at line " + this.currentLineNum + " at " + (this.currentCol - 1)));
                                 return LastToken;
                             }
                             lexemeBuffer += c + "";
@@ -279,7 +286,7 @@ public class LexicalAnalyzer {
                             continue;
                         default:
                             if (c == EOF) {
-                                setLastToken(new Token(TokenType.STXERRORTERMINATE, "EOF found, comment unfinished at line " + this.curretLineNum + " at " + (this.currentCol - 1)));
+                                setLastToken(new Token(TokenType.STXERRORTERMINATE, "EOF found, comment unfinished at line " + this.currentLineNum + " at " + (this.currentCol - 1)));
                                 return LastToken;
                             }
                             state = 9;
@@ -294,7 +301,7 @@ public class LexicalAnalyzer {
                             continue;
                         default:
                             if (c == EOF) {
-                                setLastToken(new Token(TokenType.STXERRORTERMINATE, "EOF found, comment unfinished at line " + this.curretLineNum + " at " + (this.currentCol - 1)));
+                                setLastToken(new Token(TokenType.STXERRORTERMINATE, "EOF found, comment unfinished at line " + this.currentLineNum + " at " + (this.currentCol - 1)));
                                 return LastToken;
                             }
                             state = 9;
@@ -309,7 +316,7 @@ public class LexicalAnalyzer {
                             return LastToken;
                         default:
                             if (c == EOF) {
-                                setLastToken(new Token(TokenType.STXERRORTERMINATE, "EOF found, comment unfinished at line " + this.curretLineNum + " at " + (this.currentCol - 1)));
+                                setLastToken(new Token(TokenType.STXERRORTERMINATE, "EOF found, comment unfinished at line " + this.currentLineNum + " at " + (this.currentCol - 1)));
                                 return LastToken;
                             }
                             state = 9;
@@ -401,7 +408,7 @@ public class LexicalAnalyzer {
                     } else {
                         unread(c);
                         c = read();
-                        Token temp = Parser.ReservedWordsTable.get(lexemeBuffer);
+                        Token temp = ReservedWordsTable.get(lexemeBuffer);
                         if (temp == null) {
                             setLastToken(new Token(TokenType.ID, lexemeBuffer));
                             return LastToken;
@@ -416,13 +423,13 @@ public class LexicalAnalyzer {
                     } else {
                         String temp = c + "";
                         c = read();
-                        setLastToken(new Token(TokenType.STXERROR, "Syntax Error! The character " + temp + " is unknown. Remove character at line " + this.curretLineNum + " at column " + (this.currentCol - 1)));
+                        setLastToken(new Token(TokenType.STXERROR, "Syntax Error! The character " + temp + " is unknown. Remove character at line " + this.currentLineNum + " at column " + (this.currentCol - 1)));
                         return LastToken;
                     }
                 default:
                     String temp = c + "";
                     c = read();
-                    setLastToken(new Token(TokenType.STXERROR, "Syntax Error! The character " + temp + " is unknown. Remove character at line " + this.curretLineNum + " at column " + (this.currentCol - 1)));
+                    setLastToken(new Token(TokenType.STXERROR, "Syntax Error! The character " + temp + " is unknown. Remove character at line " + this.currentLineNum + " at column " + (this.currentCol - 1)));
                     return LastToken;
             }
         }
@@ -431,10 +438,10 @@ public class LexicalAnalyzer {
     public void setLastToken(Token t) {
         if (LastToken != null) {
             if(t.getKind() == TokenType.ID){
-                Parser.IdentifierTable.put(t.getLexeme(), t);
+                IdentifierTable.put(t.getLexeme(), t);
             }
             if (t.getKind() != TokenType.ID && LastToken.getKind() == TokenType.THE) {
-                LastToken = new Token(TokenType.STXERROR, "Syntax Error! the keyword \"THE\" does not appear before a literal string. At line number: " + this.curretLineNum);
+                LastToken = new Token(TokenType.STXERROR, "Syntax Error! the keyword \"THE\" does not appear before a literal string. At line number: " + this.currentLineNum);
             } else {
                 LastToken = t;
             }

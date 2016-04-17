@@ -32,7 +32,7 @@ public class DummyParser {
                 case NUMCONST:
                 case BOOLEANCONST:
                 case RELOP:
-                case LOGICOP:
+                case LOGOP:
                     System.out.println("[" + tok.toString() + "]");
                     break;
                 case COMMENT:

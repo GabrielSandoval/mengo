@@ -174,12 +174,12 @@ public class LexicalAnalyzer {
                         case '&':
                             lexemeBuffer += c + "";
                             c = read();
-                            setLastToken(new Token(TokenType.LOGICOP, lexemeBuffer));
+                            setLastToken(new Token(TokenType.LOGOP, lexemeBuffer));
                             return LastToken;
                         case '|':
                             lexemeBuffer += c + "";
                             c = read();
-                            setLastToken(new Token(TokenType.LOGICOP, lexemeBuffer));
+                            setLastToken(new Token(TokenType.LOGOP, lexemeBuffer));
                             return LastToken;
                         case '~':
                             lexemeBuffer += c + "";

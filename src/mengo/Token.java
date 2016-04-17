@@ -68,7 +68,7 @@ enum TokenType {
     COMMA,
     LPAREN,
     RPAREN,
-    LOGICOP,
+    LOGOP,
     RELOP,
     PERIOD,
     COMMENT,

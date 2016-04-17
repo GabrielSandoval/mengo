@@ -5,7 +5,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-public class State {
+public class LRTable {
 
     public final String state;
     //KEY (TokenType)
@@ -13,7 +13,7 @@ public class State {
     //Key (Variable)
     private HashMap<String, GotoItem> GotoItemList = new HashMap<>();
 
-    State(String s) {
+    LRTable(String s) {
         state = s;
     }
     ArrayList getExpectedTokens(){

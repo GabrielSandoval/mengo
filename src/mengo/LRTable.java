@@ -9,33 +9,33 @@ public class LRTable {
 
     public final String state;
     //KEY (TokenType)
-    private HashMap<TokenType, ActionItem> ActionItemList = new HashMap<>();
+    public HashMap<TokenType, ActionItem> ActionItemList = new HashMap<>();
     //Key (Variable)
     private HashMap<String, GotoItem> GotoItemList = new HashMap<>();
 
     LRTable(String s) {
         state = s;
     }
-    ArrayList getExpectedTokens(){
-        ArrayList temp = new ArrayList();
+    ArrayList<TokenType> getExpectedTokens(){
+        ArrayList<TokenType> temp = new ArrayList();
         Iterator it = ActionItemList.entrySet().iterator();
         while (it.hasNext()) {
             Map.Entry<TokenType, ActionItem> pair = (Map.Entry) it.next();
             if(pair.getValue().Act.Action != LRAction.no_action){
                 temp.add(pair.getKey());
             }
-            it.remove(); // avoids a ConcurrentModificationException
+            //it.remove(); // avoids a ConcurrentModificationException
         }
         return temp;
     }
     Action getLRAction(TokenType tokentype) {
         ActionItem a = ActionItemList.get(tokentype);
+        if(a == null){
+            System.out.println("Error State:"+state+" token:"+tokentype);
+        }
         return a.GetLRAction();
     }
     String getGotoVariable(String variable){
-        if (GotoItemList.get(variable) == null) {
-            return "no action. Error, goto item not found";
-        }
         //System.out.println(GotoItemList.get(variable).GotoState);
         return GotoItemList.get(variable).getGotoItem();
     }
@@ -56,15 +56,14 @@ public class LRTable {
     }
 
     String getAction(String g) {
-        if (GotoItemList.get(g) == null) {
-            return "no action. Error, goto item not found";
-        }
         return GotoItemList.get(g).getGotoItem();
+    }
+    Boolean ifActionExist(String state, Object n){
+        return true;
     }
 }
 
 enum LRAction {
-
     no_action,
     shift,
     reduce,
@@ -78,15 +77,19 @@ class GotoItem {
     public final String GotoState;
 
     GotoItem(String v, String gs) {
-        if (v != null && gs != null) {
+        if(gs.contains("-")){
+            Variable = v;
+            GotoState = null;
+        }
+        else if (v != null && gs != null) {
             Variable = v;
             GotoState = gs;
         } else if (v != null && gs == null) {
             Variable = v;
-            GotoState = "No action, Error in table.";
+            GotoState = null;
         } else {
             Variable = "Error";
-            GotoState = "No action, Error in table.";
+            GotoState = null;
         }
     }
 

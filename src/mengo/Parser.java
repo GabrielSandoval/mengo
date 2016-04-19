@@ -8,6 +8,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.ListIterator;
 import java.util.Map;
 import java.util.Stack;
 
@@ -17,19 +19,20 @@ public class Parser {
     public HashMap<String, Token> ReservedWordsTable = new HashMap();
     public HashMap<String, Token> IdentifierTable = new HashMap();
     public HashMap<String, Rule> RuleTable = new HashMap();
-    public HashMap<String, ArrayList<TokenType>> FollowPosTable = new HashMap();
+    public LinkedHashMap<String, ArrayList<TokenType>> FollowPosTable = new LinkedHashMap();
 
     public void Parse(String inFile) throws FileNotFoundException, IOException {
+        
         CreateTable();
         FillNumberOfProductionsPerStates();
         //insert loop here
         FillReservedWordTable();
-        PopulateFollowPos();
+        FillFollowPosTable();
         //String root = "E:\\Jullian\\4thyr_2nd sem\\CS105 - Compiler Design\\";
         //String inFile = root + "SAMPLE2.mpl";
-
+        
         LexicalAnalyzer lexAnalyzer = new LexicalAnalyzer(inFile, IdentifierTable, ReservedWordsTable);
-
+        TreeNode root = null;
         Token CurrentToken = lexAnalyzer.nextToken();
         Stack<TreeNode> tree = new Stack();
         Stack<String> state = new Stack();
@@ -62,11 +65,31 @@ public class Parser {
                 default:
                     //System.out.println("[" + tok.getKind() + "]");
                     LRTable CurrentState = ParsingTable.get(state.peek());
-                    Action CurrentActionItem = CurrentState.getLRAction(CurrentToken.getKind());
+                    Action CurrentActionItem = null;
+                    try {
+                        CurrentActionItem = CurrentState.getLRAction(CurrentToken.getKind());
+                    } catch (Exception e) {
+                        System.out.println("Error. Unable to get Action for: " + CurrentToken.getKind() + " state: " + state.peek());
+                        System.out.println(CurrentState.ActionItemList);
+                        ErrorFlag = true;
+                        break loop;
+                    }
+                                    
                     switch (CurrentActionItem.Action) {
                         case accept:
                             //accept: end parsing
                             System.out.println("\tAccept");
+                            root = tree.pop();
+                            state.pop();
+                            if (state.empty() || tree.empty()) {
+                                System.out.println("Parsing error. Empty stack");
+                                ErrorFlag = true;
+                            } else if (!state.peek().contentEquals("0") || tree.peek().token.getKind() != TokenType.EOF) {
+                                System.out.println(state.peek());
+                                System.out.println(tree.peek().token.getKind());
+                                System.out.println("Parsing error. Wrong ending state and stack");
+                                ErrorFlag = true;
+                            }
                             break loop;
                         //shift: create a node then push to stack and update state stack
                         case shift:
@@ -77,9 +100,9 @@ public class Parser {
                             break;
                         //only during reduce a node has given a parent
                         case reduce:
-                            
+
                             System.out.println("Reduce " + CurrentActionItem.ActionState);
-                            
+
                             //get the properties of the rule
                             Rule tempRule = RuleTable.get(CurrentActionItem.ActionState);
                             //System.out.println("\t" + state.peek());
@@ -116,10 +139,55 @@ public class Parser {
                             tree.push(tempNodeLHS);
 
                             break;
+
                         default:
                         case no_action:
                             System.out.println("Syntax Error: " + CurrentToken.getLexeme() + " at line " + lexAnalyzer.getCurrentLineNumber());
-                            System.out.println("Expecting tokens: " + CurrentState.getExpectedTokens().toString());
+                            System.out.println("Did you mean? " + CurrentState.getExpectedTokens().toString());
+
+                            //ErrorFlag = true;
+                            String var = null;
+                            CheckGoto:
+                            //find a state that has a goto item.
+                            while (true) {
+                                //iterate followpos table in reverse
+                                ListIterator iterator = new ArrayList(FollowPosTable.keySet()).listIterator(FollowPosTable.size());
+                                while (iterator.hasPrevious()) {
+                                    //Map.Entry pair = (Map.Entry) iterator.previous();
+                                    //return current variable
+                                    var = (String) iterator.previous();
+                                    //check if current state has a goto state
+                                    if (CurrentState.getAction(var) != null) {
+                                        
+                                        state.push(CurrentState.getAction(var));
+                                        break CheckGoto;
+                                    }
+                                    //print state
+                                }
+                                state.pop();
+                                tree.pop();
+
+                                CurrentState = ParsingTable.get(state.peek());
+                                if (state.empty() || tree.empty()) {
+                                    
+                                    //state.push(CurrentState.getAction(var));
+                                    break;
+                                }
+                            }
+                            tree.push(new TreeNode(var));
+                                if(CurrentToken.getKind().equals(TokenType.EOF)){
+                                    
+                                    ErrorFlag = true;
+                                    break loop;
+                                }
+                                do{
+                                    System.out.println("Skipping: " + CurrentToken.toString() + " at line " + lexAnalyzer.getCurrentLineNumber());
+                                    CurrentToken = lexAnalyzer.nextToken();
+
+                                }while(!CheckFollowPos(var, CurrentToken.getKind()));
+                               
+                                ConsumedFlag = false;
+
                             break;
                     }
                     break;
@@ -131,13 +199,13 @@ public class Parser {
             System.out.println();
             System.out.println("Done parsing file: " + inFile);
             System.out.println("Parse Tree:\n");
-            traverse(tree.peek());
+            traverse(root);
             System.out.println("\n\nContents of ID Table: ");
             Iterator it = IdentifierTable.entrySet().iterator();
             while (it.hasNext()) {
                 Map.Entry pair = (Map.Entry) it.next();
                 System.out.println(pair.getValue());
-                it.remove(); // avoids a ConcurrentModificationException
+                //it.remove(); // avoids a ConcurrentModificationException
             }
         }
     }
@@ -155,14 +223,18 @@ public class Parser {
         }
         System.out.print("] ");
     }
+
     void addFollowPos(String lhs, TokenType... toks) {
         ArrayList<TokenType> temp = new ArrayList();
         temp.addAll(Arrays.asList(toks));
         FollowPosTable.put(lhs, temp);
     }
-    void PopulateFollowPos(){
-        addFollowPos("A", TokenType.RPAREN, TokenType.EOF);
+
+    boolean CheckFollowPos(String Variable, TokenType CurrentToken) {
+        ArrayList setOfFollowPos = FollowPosTable.get(Variable);
+        return setOfFollowPos.contains(CurrentToken);
     }
+
     void CreateTable() throws FileNotFoundException, IOException {
         BufferedReader inFile = new BufferedReader(new FileReader("src\\LRTable.csv"));
         String line = inFile.readLine();
@@ -181,7 +253,7 @@ public class Parser {
                 } while (!elem[i - 1].equals("EOF"));
                 do {
                     VariableList.add(elem[i]);
-                    //System.out.println(elem[i]);
+                    //System.out.print(elem[i]);
                     i++;
                 } while (i < elem.length);
             } else {
@@ -245,11 +317,10 @@ public class Parser {
 
         //sample rules for pseudo grammar
         //production number, new rule(production number, left hand side, rhs items)
-        //RuleTable.put("1", new Rule("1", "A", 3));
-        //RuleTable.put("2", new Rule("2", "A", 1));
-
+        RuleTable.put("1", new Rule("1", "A", 3));
+        RuleTable.put("2", new Rule("2", "A", 1));
         //rules for mengo grammar
-        
+        /*
          RuleTable.put("1", new Rule("1", "program", 7));
          RuleTable.put("2", new Rule("2", "program", 6));
          RuleTable.put("3", new Rule("3", "program", 6));
@@ -326,7 +397,7 @@ public class Parser {
          RuleTable.put("74", new Rule("74", "value", 1));
          RuleTable.put("75", new Rule("75", "unaryoperator", 1));
          RuleTable.put("76", new Rule("76", "unaryoperator", 1));
-         
+         */
         /*
          ArrayList<TreeNode> tempprod = new ArrayList();
          tempprod.clear();
@@ -337,6 +408,39 @@ public class Parser {
          tempprod.clear();
          tempprod.add(new TreeNode(new Token(TokenType.ID, "")));
          RuleTable.put("2", new Rule("2", "A", tempprod, 1));
+         */
+    }
+
+    public void FillFollowPosTable() {
+        addFollowPos("A", TokenType.RPAREN, TokenType.EOF);
+        //mengo language follow pos
+        /*
+         addFollowPos("program", TokenType.EOF);
+         addFollowPos("initialization", TokenType.STARTHERE, TokenType.PERMANENT, TokenType.NUMBER, TokenType.STRING, TokenType.BOOLEAN, TokenType.WHILE, TokenType.WHEN, TokenType.ID, TokenType.FROM, TokenType.ACCEPT, TokenType.SHOW, TokenType.CONCATENATE, TokenType.RETURN, TokenType.ENDHERE, TokenType.ENDTASK, TokenType.OTHERWISE, TokenType.ENDWHEN, TokenType.ENDWHILE, TokenType.ENDFROM);
+         addFollowPos("main", TokenType.TASK, TokenType.GOODBYE);
+         addFollowPos("task", TokenType.GOODBYE);
+         addFollowPos("taskdeclaration", TokenType.PERMANENT, TokenType.NUMBER, TokenType.STRING, TokenType.BOOLEAN, TokenType.WHILE, TokenType.WHEN, TokenType.ID, TokenType.FROM, TokenType.ACCEPT, TokenType.SHOW, TokenType.CONCATENATE, TokenType.RETURN);
+         addFollowPos("taskcalldec", TokenType.RPAREN);
+         addFollowPos("taskcall", TokenType.COMMA, TokenType.RPAREN, TokenType.RELOP, TokenType.PERIOD, TokenType.ADD, TokenType.SUB, TokenType.MUL, TokenType.DIV, TokenType.MOD, TokenType.INCREMENT, TokenType.UNTIL, TokenType.LOGOP);
+         addFollowPos("paramlist", TokenType.RPAREN);
+         addFollowPos("declaration", TokenType.COMMA, TokenType.PERIOD, TokenType.ASSIGN);
+         addFollowPos("datatype", TokenType.ID);
+         addFollowPos("statements", TokenType.ENDHERE, TokenType.ENDTASK, TokenType.OTHERWISE, TokenType.ENDWHEN, TokenType.ENDWHILE, TokenType.ENDFROM);
+         addFollowPos("whilestatement", TokenType.PERMANENT, TokenType.NUMBER, TokenType.STRING, TokenType.BOOLEAN, TokenType.WHILE, TokenType.WHEN, TokenType.ID, TokenType.FROM, TokenType.ACCEPT, TokenType.SHOW, TokenType.CONCATENATE, TokenType.RETURN, TokenType.ENDHERE, TokenType.ENDTASK, TokenType.OTHERWISE, TokenType.ENDWHEN, TokenType.ENDWHILE, TokenType.ENDFROM);
+         addFollowPos("ifstatement", TokenType.PERMANENT, TokenType.NUMBER, TokenType.STRING, TokenType.BOOLEAN, TokenType.WHILE, TokenType.WHEN, TokenType.ID, TokenType.FROM, TokenType.ACCEPT, TokenType.SHOW, TokenType.CONCATENATE, TokenType.RETURN, TokenType.ENDHERE, TokenType.ENDTASK, TokenType.OTHERWISE, TokenType.ENDWHEN, TokenType.ENDWHILE, TokenType.ENDFROM);
+         addFollowPos("assignmentstatement", TokenType.PERMANENT, TokenType.NUMBER, TokenType.STRING, TokenType.BOOLEAN, TokenType.WHILE, TokenType.WHEN, TokenType.ID, TokenType.FROM, TokenType.ACCEPT, TokenType.SHOW, TokenType.CONCATENATE, TokenType.RETURN, TokenType.ENDHERE, TokenType.ENDTASK, TokenType.OTHERWISE, TokenType.ENDWHEN, TokenType.ENDWHILE, TokenType.ENDFROM);
+         addFollowPos("forloopstatement", TokenType.PERMANENT, TokenType.NUMBER, TokenType.STRING, TokenType.BOOLEAN, TokenType.WHILE, TokenType.WHEN, TokenType.ID, TokenType.FROM, TokenType.ACCEPT, TokenType.SHOW, TokenType.CONCATENATE, TokenType.RETURN, TokenType.ENDHERE, TokenType.ENDTASK, TokenType.OTHERWISE, TokenType.ENDWHEN, TokenType.ENDWHILE, TokenType.ENDFROM);
+         addFollowPos("returnstatement", TokenType.PERMANENT, TokenType.NUMBER, TokenType.STRING, TokenType.BOOLEAN, TokenType.WHILE, TokenType.WHEN, TokenType.ID, TokenType.FROM, TokenType.ACCEPT, TokenType.SHOW, TokenType.CONCATENATE, TokenType.RETURN, TokenType.ENDHERE, TokenType.ENDTASK, TokenType.OTHERWISE, TokenType.ENDWHEN, TokenType.ENDWHILE, TokenType.ENDFROM);
+         addFollowPos("iostatement", TokenType.PERMANENT, TokenType.NUMBER, TokenType.STRING, TokenType.BOOLEAN, TokenType.WHILE, TokenType.WHEN, TokenType.ID, TokenType.FROM, TokenType.ACCEPT, TokenType.SHOW, TokenType.CONCATENATE, TokenType.RETURN, TokenType.ENDHERE, TokenType.ENDTASK, TokenType.OTHERWISE, TokenType.ENDWHEN, TokenType.ENDWHILE, TokenType.ENDFROM);
+         addFollowPos("concatstatement", TokenType.PERMANENT, TokenType.NUMBER, TokenType.STRING, TokenType.BOOLEAN, TokenType.WHILE, TokenType.WHEN, TokenType.ID, TokenType.FROM, TokenType.ACCEPT, TokenType.SHOW, TokenType.CONCATENATE, TokenType.RETURN, TokenType.ENDHERE, TokenType.ENDTASK, TokenType.OTHERWISE, TokenType.ENDWHEN, TokenType.ENDWHILE, TokenType.ENDFROM);
+         addFollowPos("concatprime", TokenType.PERIOD);
+         addFollowPos("logicalexpr", TokenType.COMMA, TokenType.PERIOD);
+         addFollowPos("relationalexpr", TokenType.LOGOP, TokenType.COMMA, TokenType.PERIOD);
+         addFollowPos("E", TokenType.RELOP, TokenType.PERIOD, TokenType.ADD, TokenType.SUB, TokenType.MUL, TokenType.DIV, TokenType.MOD, TokenType.RPAREN, TokenType.LOGOP, TokenType.COMMA);
+         addFollowPos("T", TokenType.RELOP, TokenType.PERIOD, TokenType.ADD, TokenType.SUB, TokenType.MUL, TokenType.DIV, TokenType.MOD, TokenType.RPAREN, TokenType.LOGOP, TokenType.COMMA);
+         addFollowPos("F", TokenType.RELOP, TokenType.PERIOD, TokenType.ADD, TokenType.SUB, TokenType.MUL, TokenType.DIV, TokenType.MOD, TokenType.RPAREN, TokenType.LOGOP, TokenType.COMMA);
+         addFollowPos("value", TokenType.RELOP, TokenType.PERIOD, TokenType.ADD, TokenType.SUB, TokenType.MUL, TokenType.DIV, TokenType.MOD, TokenType.RPAREN, TokenType.LOGOP, TokenType.COMMA, TokenType.INCREMENT, TokenType.UNTIL);
+         addFollowPos("unaryoperator", TokenType.NUMCONST);
          */
     }
 

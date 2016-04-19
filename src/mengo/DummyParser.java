@@ -50,7 +50,7 @@ public class DummyParser {
         while (it.hasNext()) {
             Map.Entry pair = (Map.Entry) it.next();
             System.out.println(pair.getValue());
-            it.remove(); // avoids a ConcurrentModificationException
+            //it.remove(); // avoids a ConcurrentModificationException
         }
     }
 

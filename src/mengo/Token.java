@@ -11,7 +11,7 @@ public class Token {
     }
     @Override
     public String toString(){
-        return lexeme;
+        return kind.toString();
     }
     public Token(TokenType tokKind, String tokLexeme) {
         kind = tokKind;

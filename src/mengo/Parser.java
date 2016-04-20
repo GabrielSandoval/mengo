@@ -30,7 +30,7 @@ public class Parser {
         FillFollowPosTable();
         //String root = "E:\\Jullian\\4thyr_2nd sem\\CS105 - Compiler Design\\";
         //String inFile = root + "SAMPLE2.mpl";
-
+        System.out.println("Done Preparing parser.");
         LexicalAnalyzer lexAnalyzer = new LexicalAnalyzer(inFile, IdentifierTable, ReservedWordsTable);
         TreeNode root = null;
         Token CurrentToken = lexAnalyzer.nextToken();
@@ -53,6 +53,7 @@ public class Parser {
             switch (CurrentToken.getKind()) {
                 case COMMENT:
                 case THE:
+                    ConsumedFlag = true;
                     break;
                 case STXERROR:
                     System.out.println("\n" + CurrentToken.toString() + "");
@@ -70,7 +71,7 @@ public class Parser {
                         CurrentActionItem = CurrentState.getLRAction(CurrentToken.getKind());
                     } catch (Exception e) {
                         System.out.println("Error. Unable to get Action for: " + CurrentToken.getKind() + " state: " + state.peek());
-                        System.out.println(CurrentState.ActionItemList);
+                        //System.out.println(CurrentState.ActionItemList);
                         ErrorFlag = true;
                         break loop;
                     }
@@ -142,8 +143,9 @@ public class Parser {
 
                         default:
                         case no_action:
-                            System.out.println("Syntax Error: " + CurrentToken.getLexeme() + " at line " + lexAnalyzer.getCurrentLineNumber());
+                            System.out.println("Syntax Error: " + CurrentToken.getKind() + " at line " + lexAnalyzer.getCurrentLineNumber());
                             System.out.println("Did you mean? " + CurrentState.getExpectedTokens().toString());
+                            System.out.println(CurrentState.state);
                             //ErrorFlag = true;
                             String var = null;
                             CheckGoto:
@@ -170,7 +172,7 @@ public class Parser {
                                 if (state.empty() || tree.empty()) {
 
                                     //state.push(CurrentState.getAction(var));
-                                    break;
+                                    break loop;
                                 }
                             }
                             tree.push(new TreeNode(var));
@@ -187,7 +189,7 @@ public class Parser {
                                 CurrentToken = lexAnalyzer.nextToken();
                             } while (!CheckFollowPos(var, CurrentToken.getKind()));
 
-                            ConsumedFlag = false;
+                            ConsumedFlag = true;
 
                             break;
                     }
@@ -254,7 +256,7 @@ public class Parser {
                 } while (!elem[i - 1].equals("EOF"));
                 do {
                     VariableList.add(elem[i]);
-                    //System.out.print(elem[i]);
+                    //System.out.println(elem[i]);
                     i++;
                 } while (i < elem.length);
             } else {
@@ -268,14 +270,14 @@ public class Parser {
                     //System.out.print(listctr + ":" + elem[ctr] + "\t");
                     LRAction Action;
                     String temp = null;
-                    if (elem[ctr].contentEquals("accept")) {
+                    if (elem[ctr].compareToIgnoreCase("accept") == 0) {
                         Action = LRAction.accept;
-                    } else if (elem[ctr].startsWith("s")) {
+                    } else if (elem[ctr].startsWith("s") || elem[ctr].startsWith("S")) {
                         Action = LRAction.shift;
-                        temp = elem[ctr].replace("s", "");
-                    } else if (elem[ctr].startsWith("r")) {
+                        temp = elem[ctr].replace("s", "").replace("S", "");
+                    } else if (elem[ctr].startsWith("r") || elem[ctr].startsWith("R")) {
                         Action = LRAction.reduce;
-                        temp = elem[ctr].replace("r", "");
+                        temp = elem[ctr].replace("r", "").replace("R", "");
                     } else {
                         Action = LRAction.no_action;
                     }

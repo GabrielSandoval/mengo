@@ -56,6 +56,9 @@ public class LRTable {
     }
 
     String getAction(String g) {
+        if(GotoItemList.get(g) == null){
+            return null;
+        }
         return GotoItemList.get(g).getGotoItem();
     }
     Boolean ifActionExist(String state, Object n){

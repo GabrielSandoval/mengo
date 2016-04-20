@@ -22,7 +22,7 @@ public class Parser {
     public LinkedHashMap<String, ArrayList<TokenType>> FollowPosTable = new LinkedHashMap();
 
     public void Parse(String inFile) throws FileNotFoundException, IOException {
-        
+
         CreateTable();
         FillNumberOfProductionsPerStates();
         //insert loop here
@@ -30,7 +30,7 @@ public class Parser {
         FillFollowPosTable();
         //String root = "E:\\Jullian\\4thyr_2nd sem\\CS105 - Compiler Design\\";
         //String inFile = root + "SAMPLE2.mpl";
-        
+
         LexicalAnalyzer lexAnalyzer = new LexicalAnalyzer(inFile, IdentifierTable, ReservedWordsTable);
         TreeNode root = null;
         Token CurrentToken = lexAnalyzer.nextToken();
@@ -74,7 +74,7 @@ public class Parser {
                         ErrorFlag = true;
                         break loop;
                     }
-                                    
+
                     switch (CurrentActionItem.Action) {
                         case accept:
                             //accept: end parsing
@@ -144,7 +144,6 @@ public class Parser {
                         case no_action:
                             System.out.println("Syntax Error: " + CurrentToken.getLexeme() + " at line " + lexAnalyzer.getCurrentLineNumber());
                             System.out.println("Did you mean? " + CurrentState.getExpectedTokens().toString());
-
                             //ErrorFlag = true;
                             String var = null;
                             CheckGoto:
@@ -158,7 +157,7 @@ public class Parser {
                                     var = (String) iterator.previous();
                                     //check if current state has a goto state
                                     if (CurrentState.getAction(var) != null) {
-                                        
+
                                         state.push(CurrentState.getAction(var));
                                         break CheckGoto;
                                     }
@@ -169,24 +168,26 @@ public class Parser {
 
                                 CurrentState = ParsingTable.get(state.peek());
                                 if (state.empty() || tree.empty()) {
-                                    
+
                                     //state.push(CurrentState.getAction(var));
                                     break;
                                 }
                             }
                             tree.push(new TreeNode(var));
-                                if(CurrentToken.getKind().equals(TokenType.EOF)){
-                                    
+                            if (CurrentToken.getKind().equals(TokenType.EOF)) {
+                                ErrorFlag = true;
+                                break loop;
+                            }
+                            do {
+                                if (CurrentToken.getKind().equals(TokenType.EOF)) {
                                     ErrorFlag = true;
                                     break loop;
                                 }
-                                do{
-                                    System.out.println("Skipping: " + CurrentToken.toString() + " at line " + lexAnalyzer.getCurrentLineNumber());
-                                    CurrentToken = lexAnalyzer.nextToken();
+                                System.out.println("Skipping: " + CurrentToken.toString() + " at line " + lexAnalyzer.getCurrentLineNumber());
+                                CurrentToken = lexAnalyzer.nextToken();
+                            } while (!CheckFollowPos(var, CurrentToken.getKind()));
 
-                                }while(!CheckFollowPos(var, CurrentToken.getKind()));
-                               
-                                ConsumedFlag = false;
+                            ConsumedFlag = false;
 
                             break;
                     }
@@ -214,10 +215,10 @@ public class Parser {
         TreeNode n = root;
         ArrayList<TreeNode> currentChildren = n.getChildren();
         if (currentChildren.isEmpty()) {
-            System.out.print(n.getValue() + " ");
+            System.out.print(" [ " + n.getValue() + " ] ");
             return;
         }
-        System.out.print(n.getValue() + " [ "); // visit(n);
+        System.out.print("[ " + n.getValue() + " "); // visit(n);
         for (int i = 0; i < currentChildren.size(); i++) {
             traverse(currentChildren.get(i));
         }
@@ -317,10 +318,16 @@ public class Parser {
 
         //sample rules for pseudo grammar
         //production number, new rule(production number, left hand side, rhs items)
-        RuleTable.put("1", new Rule("1", "A", 3));
-        RuleTable.put("2", new Rule("2", "A", 1));
+        //RuleTable.put("1", new Rule("1", "A", 3));
+        //RuleTable.put("2", new Rule("2", "A", 1));
+
+        //RuleTable.put("0", new Rule("0", "S'", 1));
+        //RuleTable.put("1", new Rule("1", "S", 2));
+        //RuleTable.put("2", new Rule("2", "X", 2));
+        //RuleTable.put("3", new Rule("3", "X", 1));
+        
         //rules for mengo grammar
-        /*
+        
          RuleTable.put("1", new Rule("1", "program", 7));
          RuleTable.put("2", new Rule("2", "program", 6));
          RuleTable.put("3", new Rule("3", "program", 6));
@@ -397,7 +404,7 @@ public class Parser {
          RuleTable.put("74", new Rule("74", "value", 1));
          RuleTable.put("75", new Rule("75", "unaryoperator", 1));
          RuleTable.put("76", new Rule("76", "unaryoperator", 1));
-         */
+         
         /*
          ArrayList<TreeNode> tempprod = new ArrayList();
          tempprod.clear();
@@ -412,36 +419,45 @@ public class Parser {
     }
 
     public void FillFollowPosTable() {
-        addFollowPos("A", TokenType.RPAREN, TokenType.EOF);
+        //addFollowPos("A", TokenType.RPAREN, TokenType.EOF);
+
+        //addFollowPos("S'", TokenType.EOF);
+        //addFollowPos("S", TokenType.EOF);
+        //addFollowPos("X", TokenType.HELLO, TokenType.GOODBYE);
+        
+        //addFollowPos("S", TokenType.PERIOD);
+        //addFollowPos("T", TokenType.PERIOD);
+        //addFollowPos("E", TokenType.PERIOD);
+        //addFollowPos("V", TokenType.PERIOD, TokenType.ASSIGN);
+        
         //mengo language follow pos
-        /*
-         addFollowPos("program", TokenType.EOF);
-         addFollowPos("initialization", TokenType.STARTHERE, TokenType.PERMANENT, TokenType.NUMBER, TokenType.STRING, TokenType.BOOLEAN, TokenType.WHILE, TokenType.WHEN, TokenType.ID, TokenType.FROM, TokenType.ACCEPT, TokenType.SHOW, TokenType.CONCATENATE, TokenType.RETURN, TokenType.ENDHERE, TokenType.ENDTASK, TokenType.OTHERWISE, TokenType.ENDWHEN, TokenType.ENDWHILE, TokenType.ENDFROM);
-         addFollowPos("main", TokenType.TASK, TokenType.GOODBYE);
-         addFollowPos("task", TokenType.GOODBYE);
-         addFollowPos("taskdeclaration", TokenType.PERMANENT, TokenType.NUMBER, TokenType.STRING, TokenType.BOOLEAN, TokenType.WHILE, TokenType.WHEN, TokenType.ID, TokenType.FROM, TokenType.ACCEPT, TokenType.SHOW, TokenType.CONCATENATE, TokenType.RETURN);
-         addFollowPos("taskcalldec", TokenType.RPAREN);
-         addFollowPos("taskcall", TokenType.COMMA, TokenType.RPAREN, TokenType.RELOP, TokenType.PERIOD, TokenType.ADD, TokenType.SUB, TokenType.MUL, TokenType.DIV, TokenType.MOD, TokenType.INCREMENT, TokenType.UNTIL, TokenType.LOGOP);
-         addFollowPos("paramlist", TokenType.RPAREN);
-         addFollowPos("declaration", TokenType.COMMA, TokenType.PERIOD, TokenType.ASSIGN);
-         addFollowPos("datatype", TokenType.ID);
-         addFollowPos("statements", TokenType.ENDHERE, TokenType.ENDTASK, TokenType.OTHERWISE, TokenType.ENDWHEN, TokenType.ENDWHILE, TokenType.ENDFROM);
-         addFollowPos("whilestatement", TokenType.PERMANENT, TokenType.NUMBER, TokenType.STRING, TokenType.BOOLEAN, TokenType.WHILE, TokenType.WHEN, TokenType.ID, TokenType.FROM, TokenType.ACCEPT, TokenType.SHOW, TokenType.CONCATENATE, TokenType.RETURN, TokenType.ENDHERE, TokenType.ENDTASK, TokenType.OTHERWISE, TokenType.ENDWHEN, TokenType.ENDWHILE, TokenType.ENDFROM);
-         addFollowPos("ifstatement", TokenType.PERMANENT, TokenType.NUMBER, TokenType.STRING, TokenType.BOOLEAN, TokenType.WHILE, TokenType.WHEN, TokenType.ID, TokenType.FROM, TokenType.ACCEPT, TokenType.SHOW, TokenType.CONCATENATE, TokenType.RETURN, TokenType.ENDHERE, TokenType.ENDTASK, TokenType.OTHERWISE, TokenType.ENDWHEN, TokenType.ENDWHILE, TokenType.ENDFROM);
-         addFollowPos("assignmentstatement", TokenType.PERMANENT, TokenType.NUMBER, TokenType.STRING, TokenType.BOOLEAN, TokenType.WHILE, TokenType.WHEN, TokenType.ID, TokenType.FROM, TokenType.ACCEPT, TokenType.SHOW, TokenType.CONCATENATE, TokenType.RETURN, TokenType.ENDHERE, TokenType.ENDTASK, TokenType.OTHERWISE, TokenType.ENDWHEN, TokenType.ENDWHILE, TokenType.ENDFROM);
-         addFollowPos("forloopstatement", TokenType.PERMANENT, TokenType.NUMBER, TokenType.STRING, TokenType.BOOLEAN, TokenType.WHILE, TokenType.WHEN, TokenType.ID, TokenType.FROM, TokenType.ACCEPT, TokenType.SHOW, TokenType.CONCATENATE, TokenType.RETURN, TokenType.ENDHERE, TokenType.ENDTASK, TokenType.OTHERWISE, TokenType.ENDWHEN, TokenType.ENDWHILE, TokenType.ENDFROM);
-         addFollowPos("returnstatement", TokenType.PERMANENT, TokenType.NUMBER, TokenType.STRING, TokenType.BOOLEAN, TokenType.WHILE, TokenType.WHEN, TokenType.ID, TokenType.FROM, TokenType.ACCEPT, TokenType.SHOW, TokenType.CONCATENATE, TokenType.RETURN, TokenType.ENDHERE, TokenType.ENDTASK, TokenType.OTHERWISE, TokenType.ENDWHEN, TokenType.ENDWHILE, TokenType.ENDFROM);
-         addFollowPos("iostatement", TokenType.PERMANENT, TokenType.NUMBER, TokenType.STRING, TokenType.BOOLEAN, TokenType.WHILE, TokenType.WHEN, TokenType.ID, TokenType.FROM, TokenType.ACCEPT, TokenType.SHOW, TokenType.CONCATENATE, TokenType.RETURN, TokenType.ENDHERE, TokenType.ENDTASK, TokenType.OTHERWISE, TokenType.ENDWHEN, TokenType.ENDWHILE, TokenType.ENDFROM);
-         addFollowPos("concatstatement", TokenType.PERMANENT, TokenType.NUMBER, TokenType.STRING, TokenType.BOOLEAN, TokenType.WHILE, TokenType.WHEN, TokenType.ID, TokenType.FROM, TokenType.ACCEPT, TokenType.SHOW, TokenType.CONCATENATE, TokenType.RETURN, TokenType.ENDHERE, TokenType.ENDTASK, TokenType.OTHERWISE, TokenType.ENDWHEN, TokenType.ENDWHILE, TokenType.ENDFROM);
-         addFollowPos("concatprime", TokenType.PERIOD);
-         addFollowPos("logicalexpr", TokenType.COMMA, TokenType.PERIOD);
-         addFollowPos("relationalexpr", TokenType.LOGOP, TokenType.COMMA, TokenType.PERIOD);
-         addFollowPos("E", TokenType.RELOP, TokenType.PERIOD, TokenType.ADD, TokenType.SUB, TokenType.MUL, TokenType.DIV, TokenType.MOD, TokenType.RPAREN, TokenType.LOGOP, TokenType.COMMA);
-         addFollowPos("T", TokenType.RELOP, TokenType.PERIOD, TokenType.ADD, TokenType.SUB, TokenType.MUL, TokenType.DIV, TokenType.MOD, TokenType.RPAREN, TokenType.LOGOP, TokenType.COMMA);
-         addFollowPos("F", TokenType.RELOP, TokenType.PERIOD, TokenType.ADD, TokenType.SUB, TokenType.MUL, TokenType.DIV, TokenType.MOD, TokenType.RPAREN, TokenType.LOGOP, TokenType.COMMA);
-         addFollowPos("value", TokenType.RELOP, TokenType.PERIOD, TokenType.ADD, TokenType.SUB, TokenType.MUL, TokenType.DIV, TokenType.MOD, TokenType.RPAREN, TokenType.LOGOP, TokenType.COMMA, TokenType.INCREMENT, TokenType.UNTIL);
-         addFollowPos("unaryoperator", TokenType.NUMCONST);
-         */
+        addFollowPos("program", TokenType.EOF);
+        addFollowPos("initialization", TokenType.STARTHERE, TokenType.PERMANENT, TokenType.NUMBER, TokenType.STRING, TokenType.BOOLEAN, TokenType.WHILE, TokenType.WHEN, TokenType.ID, TokenType.FROM, TokenType.ACCEPT, TokenType.SHOW, TokenType.CONCATENATE, TokenType.RETURN, TokenType.ENDHERE, TokenType.ENDTASK, TokenType.OTHERWISE, TokenType.ENDWHEN, TokenType.ENDWHILE, TokenType.ENDFROM);
+        addFollowPos("main", TokenType.TASK, TokenType.GOODBYE);
+        addFollowPos("task", TokenType.GOODBYE);
+        addFollowPos("taskdeclaration", TokenType.PERMANENT, TokenType.NUMBER, TokenType.STRING, TokenType.BOOLEAN, TokenType.WHILE, TokenType.WHEN, TokenType.ID, TokenType.FROM, TokenType.ACCEPT, TokenType.SHOW, TokenType.CONCATENATE, TokenType.RETURN);
+        addFollowPos("taskcalldec", TokenType.RPAREN);
+        addFollowPos("taskcall", TokenType.COMMA, TokenType.RPAREN, TokenType.RELOP, TokenType.PERIOD, TokenType.ADD, TokenType.SUB, TokenType.MUL, TokenType.DIV, TokenType.MOD, TokenType.INCREMENT, TokenType.UNTIL, TokenType.LOGOP);
+        addFollowPos("paramlist", TokenType.RPAREN);
+        addFollowPos("declaration", TokenType.COMMA, TokenType.PERIOD, TokenType.ASSIGN, TokenType.RPAREN);
+        addFollowPos("datatype", TokenType.ID);
+        addFollowPos("statements", TokenType.ENDHERE, TokenType.ENDTASK, TokenType.OTHERWISE, TokenType.ENDWHEN, TokenType.ENDWHILE, TokenType.ENDFROM);
+        addFollowPos("whilestatement", TokenType.PERMANENT, TokenType.NUMBER, TokenType.STRING, TokenType.BOOLEAN, TokenType.WHILE, TokenType.WHEN, TokenType.ID, TokenType.FROM, TokenType.ACCEPT, TokenType.SHOW, TokenType.CONCATENATE, TokenType.RETURN, TokenType.ENDHERE, TokenType.ENDTASK, TokenType.OTHERWISE, TokenType.ENDWHEN, TokenType.ENDWHILE, TokenType.ENDFROM);
+        addFollowPos("ifstatement", TokenType.PERMANENT, TokenType.NUMBER, TokenType.STRING, TokenType.BOOLEAN, TokenType.WHILE, TokenType.WHEN, TokenType.ID, TokenType.FROM, TokenType.ACCEPT, TokenType.SHOW, TokenType.CONCATENATE, TokenType.RETURN, TokenType.ENDHERE, TokenType.ENDTASK, TokenType.OTHERWISE, TokenType.ENDWHEN, TokenType.ENDWHILE, TokenType.ENDFROM);
+        addFollowPos("assignmentstatement", TokenType.PERMANENT, TokenType.NUMBER, TokenType.STRING, TokenType.BOOLEAN, TokenType.WHILE, TokenType.WHEN, TokenType.ID, TokenType.FROM, TokenType.ACCEPT, TokenType.SHOW, TokenType.CONCATENATE, TokenType.RETURN, TokenType.ENDHERE, TokenType.ENDTASK, TokenType.OTHERWISE, TokenType.ENDWHEN, TokenType.ENDWHILE, TokenType.ENDFROM);
+        addFollowPos("forloopstatement", TokenType.PERMANENT, TokenType.NUMBER, TokenType.STRING, TokenType.BOOLEAN, TokenType.WHILE, TokenType.WHEN, TokenType.ID, TokenType.FROM, TokenType.ACCEPT, TokenType.SHOW, TokenType.CONCATENATE, TokenType.RETURN, TokenType.ENDHERE, TokenType.ENDTASK, TokenType.OTHERWISE, TokenType.ENDWHEN, TokenType.ENDWHILE, TokenType.ENDFROM);
+        addFollowPos("returnstatement", TokenType.PERMANENT, TokenType.NUMBER, TokenType.STRING, TokenType.BOOLEAN, TokenType.WHILE, TokenType.WHEN, TokenType.ID, TokenType.FROM, TokenType.ACCEPT, TokenType.SHOW, TokenType.CONCATENATE, TokenType.RETURN, TokenType.ENDHERE, TokenType.ENDTASK, TokenType.OTHERWISE, TokenType.ENDWHEN, TokenType.ENDWHILE, TokenType.ENDFROM);
+        addFollowPos("iostatement", TokenType.PERMANENT, TokenType.NUMBER, TokenType.STRING, TokenType.BOOLEAN, TokenType.WHILE, TokenType.WHEN, TokenType.ID, TokenType.FROM, TokenType.ACCEPT, TokenType.SHOW, TokenType.CONCATENATE, TokenType.RETURN, TokenType.ENDHERE, TokenType.ENDTASK, TokenType.OTHERWISE, TokenType.ENDWHEN, TokenType.ENDWHILE, TokenType.ENDFROM);
+        addFollowPos("concatstatement", TokenType.PERMANENT, TokenType.NUMBER, TokenType.STRING, TokenType.BOOLEAN, TokenType.WHILE, TokenType.WHEN, TokenType.ID, TokenType.FROM, TokenType.ACCEPT, TokenType.SHOW, TokenType.CONCATENATE, TokenType.RETURN, TokenType.ENDHERE, TokenType.ENDTASK, TokenType.OTHERWISE, TokenType.ENDWHEN, TokenType.ENDWHILE, TokenType.ENDFROM);
+        addFollowPos("concatprime", TokenType.PERIOD);
+        addFollowPos("relationalexpr", TokenType.LOGOP, TokenType.COMMA, TokenType.PERIOD);
+        addFollowPos("logicalexpr", TokenType.COMMA, TokenType.PERIOD);
+        addFollowPos("E", TokenType.RELOP, TokenType.PERIOD, TokenType.ADD, TokenType.SUB, TokenType.MUL, TokenType.DIV, TokenType.MOD, TokenType.RPAREN, TokenType.LOGOP, TokenType.COMMA);
+        addFollowPos("T", TokenType.RELOP, TokenType.PERIOD, TokenType.ADD, TokenType.SUB, TokenType.MUL, TokenType.DIV, TokenType.MOD, TokenType.RPAREN, TokenType.LOGOP, TokenType.COMMA);
+        addFollowPos("F", TokenType.RELOP, TokenType.PERIOD, TokenType.ADD, TokenType.SUB, TokenType.MUL, TokenType.DIV, TokenType.MOD, TokenType.RPAREN, TokenType.LOGOP, TokenType.COMMA);
+        addFollowPos("value", TokenType.RELOP, TokenType.PERIOD, TokenType.ADD, TokenType.SUB, TokenType.MUL, TokenType.DIV, TokenType.MOD, TokenType.RPAREN, TokenType.LOGOP, TokenType.COMMA, TokenType.INCREMENT, TokenType.UNTIL);
+        addFollowPos("unaryoperator", TokenType.NUMCONST);
+
     }
 
     public void FillReservedWordTable() {

@@ -83,7 +83,7 @@ public class DummyParser {
         ReservedWordsTable.put("WHEN", new Token(TokenType.WHEN, "WHEN"));
         ReservedWordsTable.put("ENDWHEN", new Token(TokenType.ENDWHEN, "ENDWHEN"));
         ReservedWordsTable.put("OTHERWISE", new Token(TokenType.OTHERWISE, "OTHERWISE"));
-        ReservedWordsTable.put("BE", new Token(TokenType.ASSIGN, "BE"));
+        ReservedWordsTable.put("BE", new Token(TokenType.BE, "BE"));
         ReservedWordsTable.put("PERMANENT", new Token(TokenType.PERMANENT, "PERMANENT"));
         ReservedWordsTable.put("CONCATENATE", new Token(TokenType.CONCATENATE, "CONCATENATE"));
     }

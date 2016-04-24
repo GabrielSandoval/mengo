@@ -24,6 +24,8 @@ public class Parser {
     public void Parse(String inFile) throws FileNotFoundException, IOException {
 
         CreateTable();
+        
+        System.out.println(ParsingTable.get("80").getLRAction(TokenType.COMMA).Action + ParsingTable.get("80").getLRAction(TokenType.COMMA).ActionState );
         FillNumberOfProductionsPerStates();
         //insert loop here
         FillReservedWordTable();
@@ -43,6 +45,7 @@ public class Parser {
         Token LastToken = null;
         loop:
         while (true) {
+            System.out.print(lexAnalyzer.getCurrentLineNumber() + ": ");
             //print state
             System.out.print(state.toString() + "\t");
             //print stack
@@ -255,7 +258,7 @@ public class Parser {
     }
 
     void CreateTable() throws FileNotFoundException, IOException {
-        BufferedReader inFile = new BufferedReader(new FileReader("src\\LRTable.csv"));
+        BufferedReader inFile = new BufferedReader(new FileReader("src\\LALRTABLE_MENGO.csv"));
         String line = inFile.readLine();
         ArrayList<TokenType> TokenTypeList = new ArrayList();
         ArrayList<String> VariableList = new ArrayList();
@@ -267,12 +270,12 @@ public class Parser {
                 do {
                     //get TokeyType
                     TokenTypeList.add(getTokenType(elem[i]));
-                    //System.out.println(getTokenType(elem[i]).toString());
+//                    System.out.println(getTokenType(elem[i]).toString());
                     i++;
                 } while (!elem[i - 1].equals("EOF"));
                 do {
                     VariableList.add(elem[i]);
-                    //System.out.println(elem[i]);
+//                    System.out.println(elem[i]);
                     i++;
                 } while (i < elem.length);
             } else {
@@ -283,7 +286,7 @@ public class Parser {
                 int listctr = 0;
                 do {
 
-                    //System.out.print(listctr + ":" + elem[ctr] + "\t");
+//                    System.out.print(listctr + ":" + elem[ctr] + "\t");
                     LRAction Action;
                     String temp = null;
                     if (elem[ctr].compareToIgnoreCase("accept") == 0) {
@@ -305,14 +308,14 @@ public class Parser {
                 listctr = 0;
                 do {
                     if (ctr < elem.length && listctr <= VariableList.size()) {
-                        //System.out.print(listctr + ":" + elem[ctr] + "\t");
+//                        System.out.print(listctr + ":" + elem[ctr] + "\t");
                         tempState.addGotoItem(VariableList.get(listctr), elem[ctr]);
                     }
                     ctr++;
                     listctr++;
                 } while (ctr <= TokenTypeList.size() + VariableList.size());
             }
-            //System.out.println("");
+//            System.out.println("");
             line = inFile.readLine();
         }
         inFile.close();
@@ -343,6 +346,7 @@ public class Parser {
         //RuleTable.put("2", new Rule("2", "X", 2));
         //RuleTable.put("3", new Rule("3", "X", 1));
         //rules for mengo grammar
+        
         RuleTable.put("1", new Rule("1", "program", 7));
         RuleTable.put("2", new Rule("2", "program", 6));
         RuleTable.put("3", new Rule("3", "program", 6));
@@ -352,9 +356,9 @@ public class Parser {
         RuleTable.put("7", new Rule("7", "task", 5));
         RuleTable.put("8", new Rule("8", "task", 4));
         RuleTable.put("9", new Rule("9", "taskdeclaration", 2));
-        RuleTable.put("10", new Rule("10", "taskdeclaration", 6));
+        RuleTable.put("10", new Rule("10", "taskdeclaration", 7));
         RuleTable.put("11", new Rule("11", "taskcalldec", 3));
-        RuleTable.put("12", new Rule("12", "taskcalldec", 2));
+        RuleTable.put("12", new Rule("12", "taskcalldec", 1));
         RuleTable.put("13", new Rule("13", "taskcall", 1));
         RuleTable.put("14", new Rule("14", "taskcall", 5));
         RuleTable.put("15", new Rule("15", "paramlist", 3));
@@ -404,7 +408,7 @@ public class Parser {
         RuleTable.put("59", new Rule("59", "logicalexpr", 1));
         RuleTable.put("60", new Rule("60", "E", 3));
         RuleTable.put("61", new Rule("61", "E", 3));
-        RuleTable.put("62", new Rule("62", "E", 3));
+        RuleTable.put("62", new Rule("62", "E", 1));
         RuleTable.put("63", new Rule("63", "T", 3));
         RuleTable.put("64", new Rule("64", "T", 3));
         RuleTable.put("65", new Rule("65", "T", 3));
@@ -419,7 +423,7 @@ public class Parser {
         RuleTable.put("74", new Rule("74", "value", 1));
         RuleTable.put("75", new Rule("75", "unaryoperator", 1));
         RuleTable.put("76", new Rule("76", "unaryoperator", 1));
-
+        
         /*
          ArrayList<TreeNode> tempprod = new ArrayList();
          tempprod.clear();
@@ -434,7 +438,7 @@ public class Parser {
     }
 
     public void FillFollowPosTable() {
-        //addFollowPos("A", TokenType.RPAREN, TokenType.EOF);
+        addFollowPos("A", TokenType.RPAREN, TokenType.EOF);
 
         //addFollowPos("S'", TokenType.EOF);
         //addFollowPos("S", TokenType.EOF);
@@ -442,8 +446,9 @@ public class Parser {
         //addFollowPos("S", TokenType.PERIOD);
         //addFollowPos("T", TokenType.PERIOD);
         //addFollowPos("E", TokenType.PERIOD);
-        //addFollowPos("V", TokenType.PERIOD, TokenType.ASSIGN);
+        //addFollowPos("V", TokenType.PERIOD, TokenType.BE);
         //mengo language follow pos
+        
         addFollowPos("program", TokenType.EOF);
         addFollowPos("initialization", TokenType.STARTHERE, TokenType.PERMANENT, TokenType.NUMBER, TokenType.STRING, TokenType.BOOLEAN, TokenType.WHILE, TokenType.WHEN, TokenType.ID, TokenType.FROM, TokenType.ACCEPT, TokenType.SHOW, TokenType.CONCATENATE, TokenType.RETURN, TokenType.ENDHERE, TokenType.ENDTASK, TokenType.OTHERWISE, TokenType.ENDWHEN, TokenType.ENDWHILE, TokenType.ENDFROM);
         addFollowPos("main", TokenType.TASK, TokenType.GOODBYE);
@@ -452,7 +457,7 @@ public class Parser {
         addFollowPos("taskcalldec", TokenType.RPAREN);
         addFollowPos("taskcall", TokenType.COMMA, TokenType.RPAREN, TokenType.RELOP, TokenType.PERIOD, TokenType.ADD, TokenType.SUB, TokenType.MUL, TokenType.DIV, TokenType.MOD, TokenType.INCREMENT, TokenType.UNTIL, TokenType.LOGOP);
         addFollowPos("paramlist", TokenType.RPAREN);
-        addFollowPos("declaration", TokenType.COMMA, TokenType.PERIOD, TokenType.ASSIGN, TokenType.RPAREN);
+        addFollowPos("declaration", TokenType.COMMA, TokenType.PERIOD, TokenType.BE, TokenType.RPAREN);
         addFollowPos("datatype", TokenType.ID);
         addFollowPos("statements", TokenType.ENDHERE, TokenType.ENDTASK, TokenType.OTHERWISE, TokenType.ENDWHEN, TokenType.ENDWHILE, TokenType.ENDFROM);
         addFollowPos("whilestatement", TokenType.PERMANENT, TokenType.NUMBER, TokenType.STRING, TokenType.BOOLEAN, TokenType.WHILE, TokenType.WHEN, TokenType.ID, TokenType.FROM, TokenType.ACCEPT, TokenType.SHOW, TokenType.CONCATENATE, TokenType.RETURN, TokenType.ENDHERE, TokenType.ENDTASK, TokenType.OTHERWISE, TokenType.ENDWHEN, TokenType.ENDWHILE, TokenType.ENDFROM);
@@ -470,7 +475,7 @@ public class Parser {
         addFollowPos("F", TokenType.RELOP, TokenType.PERIOD, TokenType.ADD, TokenType.SUB, TokenType.MUL, TokenType.DIV, TokenType.MOD, TokenType.RPAREN, TokenType.LOGOP, TokenType.COMMA);
         addFollowPos("value", TokenType.RELOP, TokenType.PERIOD, TokenType.ADD, TokenType.SUB, TokenType.MUL, TokenType.DIV, TokenType.MOD, TokenType.RPAREN, TokenType.LOGOP, TokenType.COMMA, TokenType.INCREMENT, TokenType.UNTIL);
         addFollowPos("unaryoperator", TokenType.NUMCONST);
-
+        
     }
 
     public void FillReservedWordTable() {
@@ -502,7 +507,7 @@ public class Parser {
         ReservedWordsTable.put("WHEN", new Token(TokenType.WHEN, "WHEN"));
         ReservedWordsTable.put("ENDWHEN", new Token(TokenType.ENDWHEN, "ENDWHEN"));
         ReservedWordsTable.put("OTHERWISE", new Token(TokenType.OTHERWISE, "OTHERWISE"));
-        ReservedWordsTable.put("BE", new Token(TokenType.ASSIGN, "BE"));
+        ReservedWordsTable.put("BE", new Token(TokenType.BE, "BE"));
         ReservedWordsTable.put("PERMANENT", new Token(TokenType.PERMANENT, "PERMANENT"));
         ReservedWordsTable.put("CONCATENATE", new Token(TokenType.CONCATENATE, "CONCATENATE"));
     }

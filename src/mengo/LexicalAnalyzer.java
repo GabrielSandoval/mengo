@@ -101,7 +101,7 @@ public class LexicalAnalyzer {
                             while (c == ' ' || c == '\n' || c == '\t') {
                                 c = read();
                             }
-                            if (LastToken!= null && (LastToken.getKind() == TokenType.NUMCONST || LastToken.getKind() == TokenType.ID)) {
+                            if (LastToken!= null && (LastToken.getKind() == TokenType.NUMCONST || LastToken.getKind() == TokenType.ID || LastToken.getKind() == TokenType.RPAREN)) {
                                 setLastToken(new Token(TokenType.ADD, lexemeBuffer));
                                 return LastToken;
                             } else {
@@ -119,7 +119,7 @@ public class LexicalAnalyzer {
                             while (c == ' ' || c == '\n' || c == '\t') {
                                 c = read();
                             }
-                            if (LastToken!= null && (LastToken.getKind() == TokenType.NUMCONST || LastToken.getKind() == TokenType.ID)) {
+                            if (LastToken!= null && (LastToken.getKind() == TokenType.NUMCONST || LastToken.getKind() == TokenType.ID || LastToken.getKind() == TokenType.RPAREN)) {
                                 setLastToken(new Token(TokenType.SUB, lexemeBuffer));
                                 return LastToken;
                             } else {

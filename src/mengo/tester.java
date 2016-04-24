@@ -6,7 +6,7 @@ public class tester {
     public static void main(String[] args) throws IOException {
         String loc;
         if(args.length == 0){
-            loc = "E:\\Jullian\\4thyr_2nd sem\\CS105 - Compiler Design\\SampleA.txt";
+            loc = "E:\\Jullian\\4thyr_2nd sem\\CS105 - Compiler Design\\SampleQ.txt";
         }else{
             loc = args[0];
         }

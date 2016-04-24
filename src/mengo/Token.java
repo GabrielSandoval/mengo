@@ -11,7 +11,7 @@ public class Token {
     }
     @Override
     public String toString(){
-        return kind.toString();
+        return lexeme.toString();
     }
     public Token(TokenType tokKind, String tokLexeme) {
         kind = tokKind;
@@ -23,7 +23,7 @@ public class Token {
     }
 
     // Returns the lexeme of the token
-    public String getLexeme() {
+    protected String getLexeme() {
         return lexeme;
     }
 
@@ -79,7 +79,7 @@ enum TokenType {
     PERMANENT,
     CONCATENATE,
     EOF,
-    ASSIGN,
+    BE,
     INCREMENT,
     BY,
     NOISE,

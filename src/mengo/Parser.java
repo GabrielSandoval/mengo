@@ -21,11 +21,11 @@ public class Parser {
     public HashMap<String, Rule> RuleTable = new HashMap();
     public LinkedHashMap<String, ArrayList<TokenType>> FollowPosTable = new LinkedHashMap();
 
-    public void Parse(String inFile) throws FileNotFoundException, IOException {
+    public TreeNode Parse(String inFile) throws FileNotFoundException, IOException {
 
         CreateTable();
         
-        System.out.println(ParsingTable.get("80").getLRAction(TokenType.COMMA).Action + ParsingTable.get("80").getLRAction(TokenType.COMMA).ActionState );
+        //System.out.println(ParsingTable.get("80").getLRAction(TokenType.COMMA).Action + ParsingTable.get("80").getLRAction(TokenType.COMMA).ActionState );
         FillNumberOfProductionsPerStates();
         //insert loop here
         FillReservedWordTable();
@@ -220,8 +220,8 @@ public class Parser {
         if (ErrorFlag == false) {
             System.out.println();
             System.out.println("Done parsing file: " + inFile);
-            System.out.println("Parse Tree:\n");
-            traverse(root);
+            //System.out.println("Parse Tree:\n");
+            //traverse(root);
             System.out.println("\n\nContents of ID Table: ");
             Iterator it = IdentifierTable.entrySet().iterator();
             while (it.hasNext()) {
@@ -229,22 +229,14 @@ public class Parser {
                 System.out.println(pair.getValue());
                 //it.remove(); // avoids a ConcurrentModificationException
             }
+            return root;
+        }
+        else{
+            return null;
         }
     }
 
-    void traverse(TreeNode root) {
-        TreeNode n = root;
-        ArrayList<TreeNode> currentChildren = n.getChildren();
-        if (currentChildren.isEmpty()) {
-            System.out.print(" [ " + n.getValue() + " ] ");
-            return;
-        }
-        System.out.print("[ " + n.getValue() + " "); // visit(n);
-        for (int i = 0; i < currentChildren.size(); i++) {
-            traverse(currentChildren.get(i));
-        }
-        System.out.print("] ");
-    }
+
 
     void addFollowPos(String lhs, TokenType... toks) {
         ArrayList<TokenType> temp = new ArrayList();
@@ -355,7 +347,7 @@ public class Parser {
         RuleTable.put("6", new Rule("6", "main", 4));
         RuleTable.put("7", new Rule("7", "task", 5));
         RuleTable.put("8", new Rule("8", "task", 4));
-        RuleTable.put("9", new Rule("9", "taskdeclaration", 2));
+        RuleTable.put("9", new Rule("9", "taskdeclaration", 3));
         RuleTable.put("10", new Rule("10", "taskdeclaration", 7));
         RuleTable.put("11", new Rule("11", "taskcalldec", 3));
         RuleTable.put("12", new Rule("12", "taskcalldec", 1));

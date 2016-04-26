@@ -17,7 +17,10 @@ public class Token {
         kind = tokKind;
         lexeme = tokLexeme;
     }
-
+    public Token(TokenType toKind){
+        kind = toKind;
+        lexeme = toKind.name();
+    }
     public TokenType getKind() {
         return kind;
     }

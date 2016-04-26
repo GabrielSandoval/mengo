@@ -16,7 +16,7 @@ public class Rule {
     private final int NumberOfTokens;
     private ArrayList<TreeNode> RHS;
     private final String LHS;
-    Rule(String rulenum, String LeftHandSide, ArrayList<TreeNode> production, int numberOfTokens){
+    Rule(String rulenum, String LeftHandSide, int numberOfTokens, ArrayList<TreeNode> production){
         LHS = LeftHandSide;
         RHS = production;
         NumberOfTokens = numberOfTokens;

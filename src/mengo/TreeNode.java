@@ -56,5 +56,12 @@ public class TreeNode {
     void setParent(TreeNode parent){
         Parent = parent;
     }
+    TreeNode getChild(int i){
+        if(i> children.size() || i < 0 )
+        {
+            return null;
+        }
+        return children.get(i);
+    }
 }
 

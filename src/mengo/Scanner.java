@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-public class DummyParser {
+public class Scanner {
 
     public HashMap<String, Token> ReservedWordsTable = new HashMap();
     public HashMap<String, Token> IdentifierTable = new HashMap();
@@ -50,7 +50,7 @@ public class DummyParser {
         while (it.hasNext()) {
             Map.Entry pair = (Map.Entry) it.next();
             System.out.println(pair.getValue());
-            it.remove(); // avoids a ConcurrentModificationException
+            //it.remove(); // avoids a ConcurrentModificationException
         }
     }
 
@@ -83,7 +83,7 @@ public class DummyParser {
         ReservedWordsTable.put("WHEN", new Token(TokenType.WHEN, "WHEN"));
         ReservedWordsTable.put("ENDWHEN", new Token(TokenType.ENDWHEN, "ENDWHEN"));
         ReservedWordsTable.put("OTHERWISE", new Token(TokenType.OTHERWISE, "OTHERWISE"));
-        ReservedWordsTable.put("BE", new Token(TokenType.ASSIGN, "BE"));
+        ReservedWordsTable.put("BE", new Token(TokenType.BE, "BE"));
         ReservedWordsTable.put("PERMANENT", new Token(TokenType.PERMANENT, "PERMANENT"));
         ReservedWordsTable.put("CONCATENATE", new Token(TokenType.CONCATENATE, "CONCATENATE"));
     }

@@ -11,19 +11,22 @@ public class Token {
     }
     @Override
     public String toString(){
-        return lexeme;
+        return lexeme.toString();
     }
     public Token(TokenType tokKind, String tokLexeme) {
         kind = tokKind;
         lexeme = tokLexeme;
     }
-
+    public Token(TokenType toKind){
+        kind = toKind;
+        lexeme = toKind.name();
+    }
     public TokenType getKind() {
         return kind;
     }
 
     // Returns the lexeme of the token
-    public String getLexeme() {
+    protected String getLexeme() {
         return lexeme;
     }
 
@@ -79,7 +82,7 @@ enum TokenType {
     PERMANENT,
     CONCATENATE,
     EOF,
-    ASSIGN,
+    BE,
     INCREMENT,
     BY,
     NOISE,
